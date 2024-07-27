@@ -1,0 +1,31 @@
+# Visual Studio cache/options directory
+.vs/
+.vscode/
+
+# Visual Studio Code cache
+.vscode/
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Build for CMake
+out/
+build/
+doxygen_conf
+
+# Test
+Saint-Nec-Engine/Saint-Nec-Engine-Test/test/data/collision.txt
+Saint-Nec-Engine/Saint-Nec-Engine-Test/test/data/collisionGJK.txt
