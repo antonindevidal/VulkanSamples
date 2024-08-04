@@ -24,6 +24,7 @@ public:
 	const char** getRequiredExtensions(uint32_t& extensionCount);
 	HWND getWin32Window();
 	VkResult createSurface(VkInstance instance, VkSurfaceKHR* surface);
+	glm::uvec2 getFrameBufferSize();
 
 private:
 	glm::uvec2 _size;

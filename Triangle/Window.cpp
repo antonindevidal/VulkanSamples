@@ -58,3 +58,10 @@ VkResult Window::createSurface(VkInstance instance, VkSurfaceKHR* surface)
 {
 	return glfwCreateWindowSurface(instance, _window, nullptr, surface);
 }
+
+glm::uvec2 Window::getFrameBufferSize()
+{
+	int width, height;
+	glfwGetFramebufferSize(_window, &width, &height);
+	return { width, height };
+}
