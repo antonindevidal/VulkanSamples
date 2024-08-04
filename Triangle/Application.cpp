@@ -9,10 +9,14 @@
 #include <glm/mat4x4.hpp>
 
 #include "Window.hpp"
+#include "Device.hpp"
 
 int main() {
-    Window window;
-    window.Create(windowName);
+    std::shared_ptr<Window> window = std::make_shared<Window>();
+    window->Create(windowName);
+    
+    std::shared_ptr<Device> device = std::make_shared<Device>(window);
+    device->init();
 
     uint32_t extensionCount = 0;
     
@@ -24,10 +28,11 @@ int main() {
     glm::vec4 vec;
     auto test = matrix * vec;
 
-    while (!window.ShouldClose()) {
-        window.PollEvents();
+    while (!window->ShouldClose()) {
+        window->PollEvents();
     }
 
-    window.Destroy();
+    device->destroy();
+    window->Destroy();
     return 0;
 }

@@ -48,3 +48,13 @@ glm::uvec2 Window::GetSize()
 	glfwGetWindowSize(_window, &x, &y);
 	return { x,y };
 }
+
+const char** Window::getRequiredExtensions(uint32_t& extensionCount)
+{
+	return glfwGetRequiredInstanceExtensions(&extensionCount);
+}
+
+VkResult Window::createSurface(VkInstance instance, VkSurfaceKHR* surface)
+{
+	return glfwCreateWindowSurface(instance, _window, nullptr, surface);
+}

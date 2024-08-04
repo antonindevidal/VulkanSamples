@@ -3,12 +3,14 @@ add_executable(Triangle)
 set(Triangle_SRC 
     Application.cpp
     Window.cpp
+    Device.cpp
 )
 
 set(Triangle_HDR
     Application.h
     Window.hpp
     pch.h
+    Device.hpp
 )
 
 #[[
