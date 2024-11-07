@@ -9,6 +9,8 @@
 
 class Window
 {
+
+	using FrameBufferResizeCallback = std::function<void(int, int)>;
 public:
 
 	Window();
@@ -18,6 +20,7 @@ public:
 	void Create(std::string& name);
 	bool ShouldClose();
 	void PollEvents();
+	void waitEvents();
 	void Destroy();
 	glm::uvec2 GetSize();
 
@@ -26,8 +29,13 @@ public:
 	VkResult createSurface(VkInstance instance, VkSurfaceKHR* surface);
 	glm::uvec2 getFrameBufferSize();
 
+	void addFrameBufferResizeCallback(FrameBufferResizeCallback callback);
+
 private:
 	glm::uvec2 _size;
 	GLFWwindow* _window;
+	
+
+	static std::vector<FrameBufferResizeCallback> _frameBufferResizeCallbacks;
 };
 

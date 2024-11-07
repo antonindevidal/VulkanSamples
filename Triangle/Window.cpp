@@ -2,6 +2,8 @@
 
 #include <stdexcept>
 
+std::vector<Window::FrameBufferResizeCallback> Window::_frameBufferResizeCallbacks = {};
+
 Window::Window() :
 	_size(800, 600),
 	_window(nullptr)
@@ -21,7 +23,10 @@ void Window::Create(std::string& name)
 
 	glfwMakeContextCurrent(_window);
 	glfwSetFramebufferSizeCallback(_window, [](GLFWwindow* window, int width, int height){ 
-		// Call event manager
+		for (auto& callback : _frameBufferResizeCallbacks)
+		{
+			callback(width, height);
+		}
 	});
 	glfwSwapInterval(1);
 }
@@ -34,6 +39,11 @@ bool Window::ShouldClose()
 void Window::PollEvents()
 {
 	glfwPollEvents();
+}
+
+void Window::waitEvents()
+{
+	glfwWaitEvents();
 }
 
 void Window::Destroy()
@@ -64,4 +74,9 @@ glm::uvec2 Window::getFrameBufferSize()
 	int width, height;
 	glfwGetFramebufferSize(_window, &width, &height);
 	return { width, height };
+}
+
+void Window::addFrameBufferResizeCallback(FrameBufferResizeCallback callback)
+{
+	_frameBufferResizeCallbacks.push_back(callback);
 }
