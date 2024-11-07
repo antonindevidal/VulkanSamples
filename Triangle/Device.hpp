@@ -4,6 +4,7 @@
 #include <cstring>
 
 #include "pch.h"
+#include "Helpers.hpp"
 #include "vulkan/vulkan.h"
 #include "Window.hpp"
 
@@ -37,6 +38,8 @@ public:
 	void init();
 	void destroy();
 
+	void drawFrame();
+	void waitDeviceIdle();
 private:
 	std::shared_ptr<Window> _window;
 
@@ -50,27 +53,52 @@ private:
 	std::vector<VkImage> _swapChainImages;
 	VkFormat _swapChainImageFormat;
 	VkExtent2D _swapChainExtent;
+	std::vector<VkImageView> _swapChainImageViews;
+	VkRenderPass _renderPass;
+	VkPipelineLayout _pipelineLayout;
+	VkPipeline _graphicsPipeline;
+	std::vector<VkFramebuffer> _swapChainFramebuffers;
+	VkCommandPool _commandPool;
+	VkCommandBuffer _commandBuffer;
 
 	VkQueue _graphicsQueue;
 	VkQueue _presentQueue;
 
+	VkSemaphore _imageAvailableSemaphore;
+	VkSemaphore _renderFinishedSemaphore;
+	VkFence _inFlightFence;
+
 	void createInstance();
 	bool checkValidationLayerSupport();
+	bool checkDeviceExtensionSupport(VkPhysicalDevice device);
+	bool isDeviceSuitable(VkPhysicalDevice device);
 	std::vector<const char*> getRequiredExtensions();
 	void setupDebugMessenger();
 	void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 	void pickPhysicalDevice();
-	int rateDeviceSuitability(VkPhysicalDevice device);
+	//int rateDeviceSuitability(VkPhysicalDevice device);
 	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 	void createLogicalDevice();
 	void createSurface();
+	void createImageViews();
+	void createGraphicsPipeline();
+	void createRenderPass();
+	void createFramebuffers();
+	void createCommandPool();
+	void createCommandBuffer();
+	void createSyncObjects();
 
+	void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+	
 	// Swapchain creation
 	void createSwapChain();
 	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
 	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 	VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
 	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+
+	VkShaderModule createShaderModule(const std::vector<char>& code);
+
 
 	VkResult createDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);
 	void destroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);

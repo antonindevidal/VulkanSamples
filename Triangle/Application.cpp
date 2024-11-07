@@ -30,7 +30,9 @@ int main() {
 
     while (!window->ShouldClose()) {
         window->PollEvents();
+        device->drawFrame();
     }
+    device->waitDeviceIdle();
 
     device->destroy();
     window->Destroy();
