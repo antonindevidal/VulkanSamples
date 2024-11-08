@@ -27,6 +27,48 @@ private:
 		std::vector<VkPresentModeKHR> presentModes;
 	};
 
+	struct Vertex {
+		glm::vec2 pos;
+		glm::vec3 color;
+		static VkVertexInputBindingDescription getBindingDescription() {
+			VkVertexInputBindingDescription bindingDescription{};
+			bindingDescription.binding = 0;
+			bindingDescription.stride = sizeof(Vertex);
+			bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+			return bindingDescription;
+		}
+		static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions() {
+			std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
+			attributeDescriptions[0].binding = 0;
+			attributeDescriptions[0].location = 0;
+			attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+			attributeDescriptions[0].offset = offsetof(Vertex, pos);
+
+			attributeDescriptions[1].binding = 0;
+			attributeDescriptions[1].location = 1;
+			attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+			attributeDescriptions[1].offset = offsetof(Vertex, color);
+
+			return attributeDescriptions;
+		}
+	};
+
+	const std::vector<Vertex> vertices = {
+		{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+		{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+		{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+		{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+	};
+	const std::vector<uint16_t> indices = {
+		0, 1, 2, 2, 3, 0
+	};
+
+	struct UniformBufferObject {
+		alignas(16) glm::mat4 model;
+		alignas(16) glm::mat4 view;
+		alignas(16) glm::mat4 proj;
+	};
+
 public:
 	Device(std::shared_ptr<Window> window);
 
@@ -57,6 +99,11 @@ private:
 	VkExtent2D _swapChainExtent;
 	std::vector<VkImageView> _swapChainImageViews;
 	VkRenderPass _renderPass;
+
+	VkDescriptorSetLayout _descriptorSetLayout;
+	VkDescriptorPool _descriptorPool;
+	std::vector<VkDescriptorSet> descriptorSets;
+
 	VkPipelineLayout _pipelineLayout;
 	VkPipeline _graphicsPipeline;
 	std::vector<VkFramebuffer> _swapChainFramebuffers;
@@ -74,6 +121,19 @@ private:
 
 	uint32_t _currentFrame = 0;
 
+	VkBuffer _vertexBuffer;
+	VkDeviceMemory _vertexBufferMemory;
+	VkBuffer _indexBuffer;
+	VkDeviceMemory _indexBufferMemory;
+
+	std::vector<VkBuffer> uniformBuffers;
+	std::vector<VkDeviceMemory> uniformBuffersMemory;
+	std::vector<void*> uniformBuffersMapped;
+
+
+
+
+
 	void createInstance();
 	bool checkValidationLayerSupport();
 	bool checkDeviceExtensionSupport(VkPhysicalDevice device);
@@ -87,6 +147,7 @@ private:
 	void createLogicalDevice();
 	void createSurface();
 	void createImageViews();
+	void createDescriptorSetLayout();
 	void createGraphicsPipeline();
 	void createRenderPass();
 	void createFramebuffers();
@@ -106,7 +167,15 @@ private:
 	void cleanupSwapChain();
 
 	VkShaderModule createShaderModule(const std::vector<char>& code);
-
+	void createVertexBuffer();
+	void createIndexBuffer();
+	void createUniformBuffers();
+	void createDescriptorPool();
+	void createDescriptorSets();
+	void updateUniformBuffer(uint32_t currentFrame);
+	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
 	VkResult createDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);
 	void destroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
