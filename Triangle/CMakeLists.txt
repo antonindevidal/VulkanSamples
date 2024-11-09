@@ -13,15 +13,14 @@ set(Triangle_HDR
     Device.hpp
 )
 
-#[[
 add_custom_target(copy_resources ALL 
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/Resources/ 
-        ${CMAKE_BINARY_DIR}/Resources/
+        ${CMAKE_SOURCE_DIR}/Triangle/Textures/ 
+        ${CMAKE_BINARY_DIR}/Triangle/Textures/
 )
 
 add_dependencies(Triangle copy_resources)
-]]
+
 
 target_sources(Triangle PRIVATE ${Triangle_SRC})
 target_sources(Triangle PUBLIC ${Triangle_HDR})

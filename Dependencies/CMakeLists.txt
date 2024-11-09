@@ -45,11 +45,11 @@ add_library (imgui
 				 "stb/stb_image.h" "stb/stb_image.cpp")
 target_include_directories(imgui INTERFACE imgui)
 target_link_libraries( imgui glfw )
-
+]]
 add_library(stb_image
 				"stb/stb_image.h"
-				"stb/stb_image.cpp"
 )
+set_target_properties(stb_image PROPERTIES LINKER_LANGUAGE CXX)
 target_include_directories(stb_image INTERFACE stb_image)
-]]
+
 
