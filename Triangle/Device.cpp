@@ -39,9 +39,6 @@ void Device::init()
 	createTextureImage();
 	createTextureImageView();
 	createTextureSampler();
-	loadModel();
-	createVertexBuffer();
-	createIndexBuffer();
 	createUniformBuffers();
 	createDescriptorPool();
 	createDescriptorSets();
@@ -65,12 +62,6 @@ void Device::destroy()
 		vkDestroyBuffer(_device, uniformBuffers[i], nullptr);
 		vkFreeMemory(_device, uniformBuffersMemory[i], nullptr);
 	}
-	
-	vkDestroyBuffer(_device, _indexBuffer, nullptr);
-	vkFreeMemory(_device, _indexBufferMemory, nullptr);
-
-	vkDestroyBuffer(_device, _vertexBuffer, nullptr);
-	vkFreeMemory(_device, _vertexBufferMemory, nullptr);
 
 	vkDestroyPipeline(_device, _graphicsPipeline, nullptr);
 	vkDestroyPipelineLayout(_device, _pipelineLayout, nullptr);
@@ -93,12 +84,11 @@ void Device::destroy()
 	vkDestroyInstance(_instance, nullptr);
 }
 
-void Device::drawFrame()
+void Device::startFrame()
 {
 	vkWaitForFences(_device, 1, &_inFlightFences[_currentFrame], VK_TRUE, UINT64_MAX);
 
-	uint32_t imageIndex;
-	VkResult result = vkAcquireNextImageKHR(_device, _swapChain, UINT64_MAX, _imageAvailableSemaphores[_currentFrame], VK_NULL_HANDLE, &imageIndex);
+	VkResult result = vkAcquireNextImageKHR(_device, _swapChain, UINT64_MAX, _imageAvailableSemaphores[_currentFrame], VK_NULL_HANDLE, &_currentImageIndex);
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR) {
 		recreateSwapChain();
@@ -112,8 +102,12 @@ void Device::drawFrame()
 
 
 	vkResetCommandBuffer(_commandBuffers[_currentFrame], 0);
-	recordCommandBuffer(_commandBuffers[_currentFrame], imageIndex);
+	startRecording(_commandBuffers[_currentFrame], _currentImageIndex);
+}
 
+void Device::endFrame()
+{
+	endRecording(_commandBuffers[_currentFrame]);
 	updateUniformBuffer(_currentFrame);
 
 	VkSubmitInfo submitInfo{};
@@ -144,10 +138,10 @@ void Device::drawFrame()
 	VkSwapchainKHR swapChains[] = { _swapChain };
 	presentInfo.swapchainCount = 1;
 	presentInfo.pSwapchains = swapChains;
-	presentInfo.pImageIndices = &imageIndex;
+	presentInfo.pImageIndices = &_currentImageIndex;
 	presentInfo.pResults = nullptr; // Optional
 
-	result = vkQueuePresentKHR(_presentQueue, &presentInfo);
+	auto result = vkQueuePresentKHR(_presentQueue, &presentInfo);
 
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || _framebufferResized) {
@@ -164,6 +158,31 @@ void Device::drawFrame()
 void Device::waitDeviceIdle()
 {
 	vkDeviceWaitIdle(_device);
+}
+
+VkDevice Device::getDevice()
+{
+	return _device;
+}
+
+VkPhysicalDevice Device::getPhysicalDevice()
+{
+	return _physicalDevice;
+}
+
+VkCommandBuffer Device::getCommandBuffer()
+{
+	return _commandBuffers[_currentFrame];
+}
+
+VkPipelineLayout Device::getPipelineLayout()
+{
+	return _pipelineLayout;
+}
+
+VkDescriptorSet& Device::getDescriptorSet()
+{
+	return descriptorSets[_currentFrame];
 }
 
 void Device::createInstance()
@@ -962,7 +981,8 @@ void Device::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, u
 	endSingleTimeCommands(commandBuffer);
 }
 
-void Device::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex) {
+void Device::startRecording(VkCommandBuffer commandBuffer, uint32_t imageIndex)
+{
 	VkCommandBufferBeginInfo beginInfo{};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	beginInfo.flags = 0; // Optional
@@ -1000,57 +1020,13 @@ void Device::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIn
 	scissor.offset = { 0, 0 };
 	scissor.extent = _swapChainExtent;
 	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+}
 
-
-	VkBuffer vertexBuffers[] = { _vertexBuffer };
-	VkDeviceSize offsets[] = { 0 };
-	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-
-	vkCmdBindIndexBuffer(commandBuffer, _indexBuffer, 0, VK_INDEX_TYPE_UINT16);
-	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _pipelineLayout, 0, 1, &descriptorSets[_currentFrame], 0, nullptr);
-
-	vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
-
+void Device::endRecording(VkCommandBuffer commandBuffer)
+{
 	vkCmdEndRenderPass(commandBuffer);
 	if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
 		throw std::runtime_error("Error : failed to record command buffer!");
-	}
-}
-
-void Device::loadModel()
-{
-	tinyobj::attrib_t attrib;
-	std::vector<tinyobj::shape_t> shapes;
-	std::vector<tinyobj::material_t> materials;
-	std::string warn, err;
-	std::unordered_map<Vertex, uint32_t> uniqueVertices{};
-
-	if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, "Models/viking_room.obj")) {
-		throw std::runtime_error(warn + err);
-	}
-
-	for (const auto& shape : shapes) {
-		for (const auto& index : shape.mesh.indices) {
-			Vertex vertex{};
-			vertex.pos = {
-				attrib.vertices[3 * index.vertex_index + 0],
-				attrib.vertices[3 * index.vertex_index + 1],
-				attrib.vertices[3 * index.vertex_index + 2]
-			};
-
-			vertex.texCoord = {
-				attrib.texcoords[2 * index.texcoord_index + 0],
-				1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
-			};
-
-			vertex.color = { 1.0f, 1.0f, 1.0f };
-
-			if (uniqueVertices.count(vertex) == 0) {
-				uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
-				vertices.push_back(vertex);
-			}
-			indices.push_back(uniqueVertices[vertex]);
-		}
 	}
 }
 
@@ -1260,47 +1236,6 @@ VkShaderModule Device::createShaderModule(const std::vector<char>& code) {
 	return shaderModule;
 }
 
-void Device::createVertexBuffer()
-{
-	VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
-
-	VkBuffer stagingBuffer;
-	VkDeviceMemory stagingBufferMemory;
-	createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-	
-	void* data;
-	vkMapMemory(_device, stagingBufferMemory, 0, bufferSize, 0, &data);
-	memcpy(data, vertices.data(), (size_t)bufferSize);
-	vkUnmapMemory(_device, stagingBufferMemory);
-
-	createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _vertexBuffer, _vertexBufferMemory);
-
-	copyBuffer(stagingBuffer, _vertexBuffer, bufferSize);
-
-	vkDestroyBuffer(_device, stagingBuffer, nullptr);
-	vkFreeMemory(_device, stagingBufferMemory, nullptr);
-}
-
-void Device::createIndexBuffer()
-{
-	VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
-
-	VkBuffer stagingBuffer;
-	VkDeviceMemory stagingBufferMemory;
-	createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-
-	void* data;
-	vkMapMemory(_device, stagingBufferMemory, 0, bufferSize, 0, &data);
-	memcpy(data, indices.data(), (size_t)bufferSize);
-	vkUnmapMemory(_device, stagingBufferMemory);
-
-	createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _indexBuffer, _indexBufferMemory);
-
-	copyBuffer(stagingBuffer, _indexBuffer, bufferSize);
-
-	vkDestroyBuffer(_device, stagingBuffer, nullptr);
-	vkFreeMemory(_device, stagingBufferMemory, nullptr);
-}
 
 void Device::createUniformBuffers()
 {

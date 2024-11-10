@@ -4,6 +4,8 @@ set(Triangle_SRC
     Application.cpp
     Window.cpp
     Device.cpp
+    Buffer.cpp
+    Vertex.cpp
 )
 
 set(Triangle_HDR
@@ -11,6 +13,8 @@ set(Triangle_HDR
     Window.hpp
     pch.h
     Device.hpp
+    Buffer.hpp
+    Vertex.hpp
 )
 
 add_custom_target(copy_resources ALL 

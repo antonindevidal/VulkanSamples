@@ -12,7 +12,7 @@
 #include <fstream>
 #include <functional>
 #include <array>
-
+#include <stdexcept>
 #include <chrono>
 
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
@@ -24,3 +24,5 @@
 #include <glm/gtx/hash.hpp>
 
 #include <stb/stb_image.h>
+
+#include "vulkan/vulkan.h"

@@ -10,31 +10,44 @@
 
 #include "Window.hpp"
 #include "Device.hpp"
+#include "Buffer.hpp"
 
 int main() {
+    IndexBuffer indexBuffer;
+    VertexBuffer vertexBuffer;
+
     std::shared_ptr<Window> window = std::make_shared<Window>();
     window->Create(windowName);
     
-    std::shared_ptr<Device> device = std::make_shared<Device>(window);
-    device->init();
+    Device device{ window };
+    device.init();
 
-    uint32_t extensionCount = 0;
+    vertexBuffer.createVertexBuffer(device, vertices);
+    indexBuffer.createIndexBuffer(device, indices);
+
     
-    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-
-    std::cout << extensionCount << " extensions supported\n";
-
-    glm::mat4 matrix;
-    glm::vec4 vec;
-    auto test = matrix * vec;
 
     while (!window->ShouldClose()) {
         window->PollEvents();
-        device->drawFrame();
-    }
-    device->waitDeviceIdle();
+        device.startFrame();
 
-    device->destroy();
+        VkBuffer vertexBuffers[] = { vertexBuffer.getBuffer() };
+        VkDeviceSize offsets[] = { 0 };
+        vkCmdBindVertexBuffers(device.getCommandBuffer(), 0, 1, vertexBuffers, offsets);
+
+        vkCmdBindIndexBuffer(device.getCommandBuffer(), indexBuffer.getBuffer(), 0, VK_INDEX_TYPE_UINT16);
+        vkCmdBindDescriptorSets(device.getCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, device.getPipelineLayout(), 0, 1, &(device.getDescriptorSet()), 0, nullptr);
+
+        vkCmdDrawIndexed(device.getCommandBuffer(), static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+
+        device.endFrame();
+    }
+    device.waitDeviceIdle();
+
+    vertexBuffer.destroyBuffer(device);
+    indexBuffer.destroyBuffer(device);
+
+    device.destroy();
     window->Destroy();
     return 0;
 }
