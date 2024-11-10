@@ -18,8 +18,14 @@ add_custom_target(copy_resources ALL
         ${CMAKE_SOURCE_DIR}/Triangle/Textures/ 
         ${CMAKE_BINARY_DIR}/Triangle/Textures/
 )
-
 add_dependencies(Triangle copy_resources)
+
+add_custom_target(copy_models ALL 
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/Triangle/Models/ 
+        ${CMAKE_BINARY_DIR}/Triangle/Models/
+)
+add_dependencies(Triangle copy_models)
 
 
 target_sources(Triangle PRIVATE ${Triangle_SRC})
