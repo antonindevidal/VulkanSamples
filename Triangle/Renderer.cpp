@@ -1,7 +1,5 @@
 #include "Renderer.hpp"
 
-
-
 Renderer::Renderer(): _device()
 {
 }
@@ -36,7 +34,6 @@ void Renderer::createRenderer(std::shared_ptr<Window> window)
 	createCommandBuffers();
 	createSyncObjects();
 }
-
 
 void Renderer::destroy()
 {
@@ -1274,48 +1271,40 @@ void Renderer::destroyBuffer(Buffer buffer)
 
 Buffer Renderer::createVertexBuffer(std::vector<Vertex> vertices)
 {
-	Buffer vertexBuffer;
+	Buffer vertexBuffer, stagingBuffer;
 	VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
-	VkBuffer stagingBuffer;
-	VkDeviceMemory stagingBufferMemory;
-	createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer._buffer, stagingBuffer._bufferMemory);
 
 	void* data;
-	vkMapMemory(_device.getDevice(), stagingBufferMemory, 0, bufferSize, 0, &data);
+	vkMapMemory(_device.getDevice(), stagingBuffer._bufferMemory, 0, bufferSize, 0, &data);
 	memcpy(data, vertices.data(), (size_t)bufferSize);
-	vkUnmapMemory(_device.getDevice(), stagingBufferMemory);
+	vkUnmapMemory(_device.getDevice(), stagingBuffer._bufferMemory);
 
 	createBuffer( bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer._buffer, vertexBuffer._bufferMemory);
-
-	copyBuffer(stagingBuffer, vertexBuffer._buffer, bufferSize);
-
-	vkDestroyBuffer(_device.getDevice(), stagingBuffer, nullptr);
-	vkFreeMemory(_device.getDevice(), stagingBufferMemory, nullptr);
+	copyBuffer(stagingBuffer._buffer, vertexBuffer._buffer, bufferSize);
+	destroyBuffer(stagingBuffer);
 
 	return vertexBuffer;
 }
 
 Buffer Renderer::createIndexBuffer(std::vector<index_t> indices)
 {
-	Buffer indexBuffer;
+	Buffer indexBuffer, stagingBuffer;
 	VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
-	createBuffer( bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	createBuffer( bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer._buffer, stagingBuffer._bufferMemory);
 
 	void* data;
-	vkMapMemory(_device.getDevice(), stagingBufferMemory, 0, bufferSize, 0, &data);
+	vkMapMemory(_device.getDevice(), stagingBuffer._bufferMemory, 0, bufferSize, 0, &data);
 	memcpy(data, indices.data(), (size_t)bufferSize);
-	vkUnmapMemory(_device.getDevice(), stagingBufferMemory);
+	vkUnmapMemory(_device.getDevice(), stagingBuffer._bufferMemory);
 
 	createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer._buffer, indexBuffer._bufferMemory);
-
-	copyBuffer(stagingBuffer, indexBuffer._buffer, bufferSize);
-
-	vkDestroyBuffer(_device.getDevice(), stagingBuffer, nullptr);
-	vkFreeMemory(_device.getDevice(), stagingBufferMemory, nullptr);
+	copyBuffer(stagingBuffer._buffer, indexBuffer._buffer, bufferSize);
+	destroyBuffer(stagingBuffer);
 
 	return indexBuffer;
 }
