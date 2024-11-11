@@ -9,7 +9,7 @@
 #include <glm/mat4x4.hpp>
 
 #include "Window.hpp"
-#include "Device.hpp"
+#include "Renderer.hpp"
 #include "Buffer.hpp"
 #include "Mesh.hpp"
 
@@ -18,26 +18,25 @@ int main() {
     std::shared_ptr<Window> window = std::make_shared<Window>();
     window->Create(windowName);
     
-    Device device{ window };
-    device.init();
+    Renderer renderer{};
+    renderer.createRenderer(window);
 
-    Mesh mesh;
-    mesh.createMesh(device, vertices, indices);
-
+    Mesh mesh = renderer.createMesh(vertices, indices);
     
 
     while (!window->ShouldClose()) {
         window->PollEvents();
-        device.startFrame();
+        renderer.startFrame();
 
-        mesh.drawMesh(device);
-        device.endFrame();
+        renderer.drawMesh(mesh);
+
+        renderer.endFrame();
     }
-    device.waitDeviceIdle();
+    renderer.waitDeviceIdle();
 
-    mesh.destroyMesh(device);
+    renderer.destroyMesh(mesh);
 
-    device.destroy();
+    renderer.destroy();
     window->Destroy();
     return 0;
 }

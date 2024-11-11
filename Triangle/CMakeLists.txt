@@ -7,6 +7,8 @@ set(Triangle_SRC
     Buffer.cpp
     Vertex.cpp
     Mesh.cpp
+    Renderer.cpp
+    Helpers.cpp
 )
 
 set(Triangle_HDR
@@ -17,6 +19,8 @@ set(Triangle_HDR
     Buffer.hpp
     Vertex.hpp
     Mesh.hpp
+    Renderer.hpp
+    Helpers.cpp
 )
 
 add_custom_target(copy_resources ALL 
