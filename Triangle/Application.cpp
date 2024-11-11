@@ -11,10 +11,9 @@
 #include "Window.hpp"
 #include "Device.hpp"
 #include "Buffer.hpp"
+#include "Mesh.hpp"
 
 int main() {
-    IndexBuffer indexBuffer;
-    VertexBuffer vertexBuffer;
 
     std::shared_ptr<Window> window = std::make_shared<Window>();
     window->Create(windowName);
@@ -22,8 +21,8 @@ int main() {
     Device device{ window };
     device.init();
 
-    vertexBuffer.createVertexBuffer(device, vertices);
-    indexBuffer.createIndexBuffer(device, indices);
+    Mesh mesh;
+    mesh.createMesh(device, vertices, indices);
 
     
 
@@ -31,21 +30,12 @@ int main() {
         window->PollEvents();
         device.startFrame();
 
-        VkBuffer vertexBuffers[] = { vertexBuffer.getBuffer() };
-        VkDeviceSize offsets[] = { 0 };
-        vkCmdBindVertexBuffers(device.getCommandBuffer(), 0, 1, vertexBuffers, offsets);
-
-        vkCmdBindIndexBuffer(device.getCommandBuffer(), indexBuffer.getBuffer(), 0, VK_INDEX_TYPE_UINT16);
-        vkCmdBindDescriptorSets(device.getCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, device.getPipelineLayout(), 0, 1, &(device.getDescriptorSet()), 0, nullptr);
-
-        vkCmdDrawIndexed(device.getCommandBuffer(), static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
-
+        mesh.drawMesh(device);
         device.endFrame();
     }
     device.waitDeviceIdle();
 
-    vertexBuffer.destroyBuffer(device);
-    indexBuffer.destroyBuffer(device);
+    mesh.destroyMesh(device);
 
     device.destroy();
     window->Destroy();
