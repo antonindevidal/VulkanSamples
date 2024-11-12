@@ -25,7 +25,6 @@ void Renderer::createRenderer(std::shared_ptr<Window> window)
 	createCommandPool();
 	createDepthResources();
 	createFramebuffers();
-	createUniformBuffers();
 	createDescriptorPool();
 	createCommandBuffers();
 	createSyncObjects();
@@ -40,10 +39,7 @@ void Renderer::destroy()
 	vkDestroyDescriptorPool(_device.getDevice(), _descriptorPool, nullptr);
 	vkDestroyDescriptorSetLayout(_device.getDevice(), _descriptorSetLayout, nullptr);
 
-	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-		vkDestroyBuffer(_device.getDevice(), uniformBuffers[i], nullptr);
-		vkFreeMemory(_device.getDevice(), uniformBuffersMemory[i], nullptr);
-	}
+	
 
 	vkDestroyPipeline(_device.getDevice(), _graphicsPipeline, nullptr);
 	vkDestroyPipelineLayout(_device.getDevice(), _pipelineLayout, nullptr);
@@ -81,6 +77,16 @@ VkPipelineLayout Renderer::getPipelineLayout()
 VkDescriptorSet& Renderer::getDescriptorSet()
 {
 	return descriptorSets[_currentFrame];
+}
+
+uint32_t Renderer::getSwapchainWidth()
+{
+	return _swapChainExtent.width;
+}
+
+uint32_t Renderer::getSwapchainHeight()
+{
+	return _swapChainExtent.height;
 }
 
 Device& Renderer::getDevice()
@@ -189,7 +195,6 @@ void Renderer::startFrame()
 void Renderer::endFrame()
 {
 	endRecording(_commandBuffers[_currentFrame]);
-	updateUniformBuffer(_currentFrame);
 
 	VkSubmitInfo submitInfo{};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -1011,21 +1016,6 @@ VkShaderModule Renderer::createShaderModule(const std::vector<char>& code) {
 	return shaderModule;
 }
 
-void Renderer::createUniformBuffers()
-{
-	VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-
-	uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-	uniformBuffersMemory.resize(MAX_FRAMES_IN_FLIGHT);
-	uniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
-
-	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-		createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
-
-		vkMapMemory(_device.getDevice(), uniformBuffersMemory[i], 0, bufferSize, 0, &uniformBuffersMapped[i]);
-	}
-}
-
 void Renderer::createDescriptorPool()
 {
 	std::array<VkDescriptorPoolSize, 2> poolSizes{};
@@ -1045,7 +1035,7 @@ void Renderer::createDescriptorPool()
 	}
 }
 
-void Renderer::createDescriptorSets(VkDescriptorImageInfo textureInfo)
+void Renderer::createDescriptorSets(UniformBuffer uniformBuffer, Texture texture)
 {
 	std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, _descriptorSetLayout);
 	VkDescriptorSetAllocateInfo allocInfo{};
@@ -1060,12 +1050,10 @@ void Renderer::createDescriptorSets(VkDescriptorImageInfo textureInfo)
 	}
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-		VkDescriptorBufferInfo bufferInfo{};
-		bufferInfo.buffer = uniformBuffers[i];
-		bufferInfo.offset = 0;
-		bufferInfo.range = sizeof(UniformBufferObject);
-
 		std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
+
+		VkDescriptorImageInfo textureInfo = texture.descriptorInfo();
+		VkDescriptorBufferInfo bufferInfo = uniformBuffer.descriptorInfo(i);
 
 		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrites[0].dstSet = descriptorSets[i];
@@ -1085,22 +1073,6 @@ void Renderer::createDescriptorSets(VkDescriptorImageInfo textureInfo)
 
 		vkUpdateDescriptorSets(_device.getDevice(), static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
-}
-
-void Renderer::updateUniformBuffer(uint32_t currentFrame)
-{
-	static auto startTime = std::chrono::high_resolution_clock::now();
-
-	auto currentTime = std::chrono::high_resolution_clock::now();
-	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-
-	UniformBufferObject ubo{};
-	ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.proj = glm::perspective(glm::radians(45.0f), _swapChainExtent.width / (float)_swapChainExtent.height, 0.1f, 10.0f);
-	ubo.proj[1][1] *= -1;
-
-	memcpy(uniformBuffersMapped[currentFrame], &ubo, sizeof(ubo));
 }
 
 uint32_t Renderer::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
@@ -1303,6 +1275,14 @@ Buffer Renderer::createIndexBuffer(std::vector<index_t> indices)
 	destroyBuffer(stagingBuffer);
 
 	return indexBuffer;
+}
+
+void Renderer::destroyUniformBuffer(UniformBuffer buffer)
+{
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+		vkDestroyBuffer(_device.getDevice(), buffer._buffers[i], nullptr);
+		vkFreeMemory(_device.getDevice(), buffer._buffersMemory[i], nullptr);
+	}
 }
 
 void Renderer::setupDebugMessenger()

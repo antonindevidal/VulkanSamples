@@ -8,11 +8,6 @@
 class Renderer
 {
 private:
-	struct UniformBufferObject {
-		alignas(16) glm::mat4 model;
-		alignas(16) glm::mat4 view;
-		alignas(16) glm::mat4 proj;
-	};
 
 
 public:
@@ -27,6 +22,9 @@ public:
 	VkCommandBuffer getCommandBuffer();
 	VkPipelineLayout getPipelineLayout();
 	VkDescriptorSet& getDescriptorSet();
+	uint32_t getSwapchainWidth();
+	uint32_t getSwapchainHeight();
+
 	Device& getDevice();
 	void waitDeviceIdle();
 
@@ -66,9 +64,7 @@ private:
 	uint32_t _currentFrame = 0;
 	uint32_t _currentImageIndex = 0;
 
-	std::vector<VkBuffer> uniformBuffers;
-	std::vector<VkDeviceMemory> uniformBuffersMemory;
-	std::vector<void*> uniformBuffersMapped;
+
 
 	VkImage _depthImage;
 	VkDeviceMemory _depthImageMemory;
@@ -113,9 +109,7 @@ private:
 	void cleanupSwapChain();
 
 	VkShaderModule createShaderModule(const std::vector<char>& code);
-	void createUniformBuffers();
 	void createDescriptorPool();
-	void updateUniformBuffer(uint32_t currentFrame);
 	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 	void setupDebugMessenger();
@@ -129,6 +123,12 @@ public:
 	Buffer createVertexBuffer(std::vector<Vertex> vertices);
 	Buffer createIndexBuffer(std::vector<index_t> indices);
 
+	template<typename T>
+	UniformBuffer createUniformBuffer();
+	void destroyUniformBuffer(UniformBuffer buffer);
+	template<typename T>
+	void updateUniformBuffer(UniformBuffer buffer, const T& data);
+
 	// Mesh
 	Mesh createMesh(const std::vector<Vertex>& vertices, const std::vector<index_t>& indices);
 	void destroyMesh(Mesh& mesh);
@@ -139,7 +139,7 @@ public:
 	void destroyTexture(Texture texture);
 
 
-	void createDescriptorSets(VkDescriptorImageInfo textureInfo);
+	void createDescriptorSets(UniformBuffer uniformBuffer, Texture texture);
 
 
 private:
@@ -160,3 +160,29 @@ private:
 
 
 };
+
+template<typename T>
+UniformBuffer Renderer::createUniformBuffer()
+{
+	UniformBuffer buffer;
+	VkDeviceSize bufferSize = sizeof(T);
+
+	buffer._buffers.resize(MAX_FRAMES_IN_FLIGHT);
+	buffer._buffersMemory.resize(MAX_FRAMES_IN_FLIGHT);
+	buffer._buffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
+	buffer._size = bufferSize;
+
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+		createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, buffer._buffers[i], buffer._buffersMemory[i]);
+
+		vkMapMemory(_device.getDevice(), buffer._buffersMemory[i], 0, bufferSize, 0, &buffer._buffersMapped[i]);
+	}
+
+	return buffer;
+}
+
+template<typename T>
+void Renderer::updateUniformBuffer(UniformBuffer buffer, const T& data)
+{
+	memcpy(buffer._buffersMapped[_currentFrame], &data, sizeof(T));
+}
