@@ -11,6 +11,7 @@ set(Triangle_SRC
     Helpers.cpp
     Texture.cpp
     DescriptorSet.cpp
+    Instance.cpp
 )
 
 set(Triangle_HDR
@@ -25,6 +26,7 @@ set(Triangle_HDR
     Helpers.cpp
     Texture.hpp
     DescriptorSet.hpp
+    Instance.hpp
 )
 
 add_custom_target(copy_resources ALL 

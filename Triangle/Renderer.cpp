@@ -1,6 +1,6 @@
 #include "Renderer.hpp"
 
-Renderer::Renderer(): _device()
+Renderer::Renderer(): _device(), _instance()
 {
 }
 
@@ -12,10 +12,9 @@ void Renderer::createRenderer(std::shared_ptr<Window> window)
 		_framebufferResized = true;
 		});
 
-	createInstance();
-	setupDebugMessenger();
-	createSurface();
-	_device.init(_instance, _surface);
+	_instance.createInstance(window);
+	
+	_device.init(_instance.getInstance(), _instance.getSurface());
 	createQueues();
 	createSwapChain();
 	createImageViews();
@@ -51,14 +50,8 @@ void Renderer::destroy()
 	vkDestroyCommandPool(_device.getDevice(), _commandPool, nullptr);
 
 	_device.destroy();
-
-	if (enableValidationLayers) {
-		destroyDebugUtilsMessengerEXT(_instance, _debugMessenger, nullptr);
-	}
-
+	_instance.destroyInstance();
 	
-	vkDestroySurfaceKHR(_instance, _surface, nullptr);
-	vkDestroyInstance(_instance, nullptr);
 }
 
 VkCommandBuffer Renderer::getCommandBuffer()
@@ -90,78 +83,6 @@ Device& Renderer::getDevice()
 void Renderer::waitDeviceIdle()
 {
 	_device.waitDeviceIdle();
-}
-
-void Renderer::createInstance()
-{
-	if (_window == nullptr)
-	{
-		throw std::runtime_error("Error: Can't create VkInstance, Window is null!");
-	}
-	if (enableValidationLayers && !checkValidationLayerSupport())
-	{
-		throw std::runtime_error("Error: Validation layers requested, but not available!");
-	}
-
-	VkApplicationInfo appInfo{};
-	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-	appInfo.pApplicationName = "Vulkan Triangle";
-	appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-	appInfo.pEngineName = "Vulkan Engine";
-	appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-	appInfo.apiVersion = VK_API_VERSION_1_0;
-	appInfo.pNext = nullptr;
-
-
-	auto extensions = getRequiredExtensions();
-
-	VkInstanceCreateInfo createInfo{};
-	createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-	createInfo.pApplicationInfo = &appInfo;
-	createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
-	createInfo.ppEnabledExtensionNames = extensions.data();
-
-	VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-	if (enableValidationLayers) {
-		createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-		createInfo.ppEnabledLayerNames = validationLayers.data();
-
-		populateDebugMessengerCreateInfo(debugCreateInfo);
-		createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
-	}
-	else {
-		createInfo.enabledLayerCount = 0;
-		createInfo.pNext = nullptr;
-	}
-
-	if (vkCreateInstance(&createInfo, nullptr, &_instance) != VK_SUCCESS) {
-		throw std::runtime_error("Error: Failed to create VkInstance!");
-	}
-}
-
-bool Renderer::checkValidationLayerSupport()
-{
-	uint32_t layerCount;
-	vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-
-	std::vector<VkLayerProperties> availableLayers(layerCount);
-	vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
-
-	for (const char* layerName : validationLayers) {
-		bool layerFound = false;
-
-		for (const auto& layerProperties : availableLayers) {
-			if (strcmp(layerName, layerProperties.layerName) == 0) {
-				layerFound = true;
-				break;
-			}
-		}
-
-		if (!layerFound) {
-			return false;
-		}
-	}
-	return true;
 }
 
 void Renderer::startFrame()
@@ -236,17 +157,10 @@ void Renderer::endFrame()
 
 void Renderer::createQueues()
 {
-	QueueFamilyIndices indices = findQueueFamilies(_device.getPhysicalDevice(),_surface);
+	QueueFamilyIndices indices = findQueueFamilies(_device.getPhysicalDevice(),_instance.getSurface());
 
 	vkGetDeviceQueue(_device.getDevice(), indices.graphicsFamily.value(), 0, &_graphicsQueue);
 	vkGetDeviceQueue(_device.getDevice(), indices.presentFamily.value(), 0, &_presentQueue);
-}
-
-void Renderer::createSurface()
-{
-	if (_window->createSurface(_instance, &_surface) != VK_SUCCESS) {
-		throw std::runtime_error("Error: failed to create window surface!");
-	}
 }
 
 void Renderer::createImageViews()
@@ -531,7 +445,7 @@ void Renderer::createFramebuffers()
 
 void Renderer::createCommandPool()
 {
-	QueueFamilyIndices queueFamilyIndices = findQueueFamilies(_device.getPhysicalDevice(), _surface);
+	QueueFamilyIndices queueFamilyIndices = findQueueFamilies(_device.getPhysicalDevice(), _instance.getSurface());
 
 	VkCommandPoolCreateInfo poolInfo{};
 	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -668,20 +582,6 @@ VkImageView Renderer::createImageView(VkImage image, VkFormat format, VkImageAsp
 	return imageView;
 }
 
-std::vector<const char*> Renderer::getRequiredExtensions()
-{
-	uint32_t windowExtensionCount = 0;
-	const char** windowExtensions;
-	windowExtensions = _window->getRequiredExtensions(windowExtensionCount);
-
-	std::vector<const char*> extensions(windowExtensions, windowExtensions + windowExtensionCount);
-
-	if (enableValidationLayers) {
-		extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-	}
-
-	return extensions;
-}
 
 void Renderer::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
 {
@@ -873,7 +773,7 @@ bool Renderer::hasStencilComponent(VkFormat format)
 }
 
 void Renderer::createSwapChain() {
-	SwapChainSupportDetails swapChainSupport = querySwapChainSupport(_device.getPhysicalDevice(), _surface);
+	SwapChainSupportDetails swapChainSupport = querySwapChainSupport(_device.getPhysicalDevice(), _instance.getSurface());
 
 	VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
 	VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
@@ -889,7 +789,7 @@ void Renderer::createSwapChain() {
 
 	VkSwapchainCreateInfoKHR createInfo{};
 	createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-	createInfo.surface = _surface;
+	createInfo.surface = _instance.getSurface();
 	createInfo.minImageCount = imageCount;
 	createInfo.imageFormat = surfaceFormat.format;
 	createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -897,7 +797,7 @@ void Renderer::createSwapChain() {
 	createInfo.imageArrayLayers = 1;
 	createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-	QueueFamilyIndices indices = findQueueFamilies(_device.getPhysicalDevice(), _surface);
+	QueueFamilyIndices indices = findQueueFamilies(_device.getPhysicalDevice(), _instance.getSurface());
 	uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
 	if (indices.graphicsFamily != indices.presentFamily) {
@@ -1296,53 +1196,3 @@ void Renderer::destroyUniformBuffer(UniformBuffer buffer)
 		vkFreeMemory(_device.getDevice(), buffer._buffersMemory[i], nullptr);
 	}
 }
-
-void Renderer::setupDebugMessenger()
-{
-	if (!enableValidationLayers) return;
-
-	VkDebugUtilsMessengerCreateInfoEXT createInfo{};
-	populateDebugMessengerCreateInfo(createInfo);
-
-	if (createDebugUtilsMessengerEXT(_instance, &createInfo, nullptr, &_debugMessenger) != VK_SUCCESS) {
-		throw std::runtime_error("failed to set up debug messenger!");
-	}
-}
-
-void Renderer::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) {
-	createInfo = {};
-	createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-	createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-	createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-	createInfo.pfnUserCallback = debugCallback;
-}
-
-VkResult Renderer::createDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
-	auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
-	if (func != nullptr) {
-		return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
-	}
-	else {
-		return VK_ERROR_EXTENSION_NOT_PRESENT;
-	}
-}
-
-void Renderer::destroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator) {
-	auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
-	if (func != nullptr) {
-		func(instance, debugMessenger, pAllocator);
-	}
-}
-
-VKAPI_ATTR VkBool32 VKAPI_CALL Renderer::debugCallback(
-	VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-	VkDebugUtilsMessageTypeFlagsEXT messageType,
-	const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-	void* pUserData) {
-
-	if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
-		std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
-	}
-	return VK_FALSE;
-}
-

@@ -5,6 +5,7 @@
 #include "Buffer.hpp"
 #include "Texture.hpp"
 #include "DescriptorSet.hpp"
+#include "Instance.hpp"
 
 class Renderer
 {
@@ -32,8 +33,8 @@ private:
 	std::shared_ptr<Window> _window;
 
 	Device _device;
+	Instance _instance;
 
-	VkSurfaceKHR _surface;
 
 	VkSwapchainKHR _swapChain;
 	std::vector<VkImage> _swapChainImages;
@@ -67,15 +68,8 @@ private:
 	VkImage _depthImage;
 	VkDeviceMemory _depthImageMemory;
 	VkImageView _depthImageView;
-	VkInstance _instance;
-	VkDebugUtilsMessengerEXT _debugMessenger;
-
-	void createInstance();
-	bool checkValidationLayerSupport();
-
 
 	void createQueues();
-	void createSurface();
 	void createImageViews();
 	VkDescriptorSetLayout createDescriptorSetLayout();
 	void createRenderPass();
@@ -109,9 +103,10 @@ private:
 	void createDescriptorPool();
 	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
-	void setupDebugMessenger();
-	void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
-	std::vector<const char*> getRequiredExtensions();
+
+	VkCommandBuffer beginSingleTimeCommands();
+	void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+
 
 public:
 	// Graphics pipeline
@@ -142,23 +137,6 @@ public:
 	DescriptorSet createDescriptorSet(UniformBuffer uniformBuffer, Texture texture);
 	void destroyDescriptorSet(DescriptorSet descriptorSet);
 	void bindDescriptorSet(DescriptorSet descriptorSet);
-
-
-private:
-	VkCommandBuffer beginSingleTimeCommands();
-	void endSingleTimeCommands(VkCommandBuffer commandBuffer);
-
-
-
-	VkResult createDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);
-	void destroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
-
-	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
-		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-		VkDebugUtilsMessageTypeFlagsEXT messageType,
-		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-		void* pUserData);
-
 
 
 };
