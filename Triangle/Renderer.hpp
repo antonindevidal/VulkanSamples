@@ -4,6 +4,7 @@
 #include "Mesh.hpp"
 #include "Buffer.hpp"
 #include "Texture.hpp"
+#include "DescriptorSet.hpp"
 
 class Renderer
 {
@@ -21,7 +22,6 @@ public:
 
 	VkCommandBuffer getCommandBuffer();
 	VkPipelineLayout getPipelineLayout();
-	VkDescriptorSet& getDescriptorSet();
 	uint32_t getSwapchainWidth();
 	uint32_t getSwapchainHeight();
 
@@ -42,9 +42,7 @@ private:
 	std::vector<VkImageView> _swapChainImageViews;
 	VkRenderPass _renderPass;
 
-	VkDescriptorSetLayout _descriptorSetLayout;
 	VkDescriptorPool _descriptorPool;
-	std::vector<VkDescriptorSet> descriptorSets;
 
 	VkPipelineLayout _pipelineLayout;
 	VkPipeline _graphicsPipeline;
@@ -79,8 +77,7 @@ private:
 	void createQueues();
 	void createSurface();
 	void createImageViews();
-	void createDescriptorSetLayout();
-	void createGraphicsPipeline();
+	VkDescriptorSetLayout createDescriptorSetLayout();
 	void createRenderPass();
 	void createFramebuffers();
 	void createCommandPool();
@@ -117,6 +114,9 @@ private:
 	std::vector<const char*> getRequiredExtensions();
 
 public:
+	// Graphics pipeline
+	void createGraphicsPipeline(DescriptorSet descriptorSet);
+
 	// Buffers
 	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 	void destroyBuffer(Buffer buffer);
@@ -138,8 +138,10 @@ public:
 	Texture createTexture(const std::string& image);
 	void destroyTexture(Texture texture);
 
-
-	void createDescriptorSets(UniformBuffer uniformBuffer, Texture texture);
+	// Descriptors
+	DescriptorSet createDescriptorSet(UniformBuffer uniformBuffer, Texture texture);
+	void destroyDescriptorSet(DescriptorSet descriptorSet);
+	void bindDescriptorSet(DescriptorSet descriptorSet);
 
 
 private:

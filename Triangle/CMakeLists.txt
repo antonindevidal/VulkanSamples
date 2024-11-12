@@ -10,6 +10,7 @@ set(Triangle_SRC
     Renderer.cpp
     Helpers.cpp
     Texture.cpp
+    DescriptorSet.cpp
 )
 
 set(Triangle_HDR
@@ -23,6 +24,7 @@ set(Triangle_HDR
     Renderer.hpp
     Helpers.cpp
     Texture.hpp
+    DescriptorSet.hpp
 )
 
 add_custom_target(copy_resources ALL 

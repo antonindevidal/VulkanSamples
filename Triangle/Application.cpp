@@ -43,12 +43,16 @@ int main() {
     Texture texture = renderer.createTexture("Textures/cat.jpg");
     UniformBuffer uniforms = renderer.createUniformBuffer<UniformBufferObject>();
 
-    renderer.createDescriptorSets(uniforms, texture);
+    DescriptorSet descriptorSet = renderer.createDescriptorSet(uniforms, texture);
+
+    renderer.createGraphicsPipeline(descriptorSet);
+
 
     while (!window->ShouldClose()) {
         window->PollEvents();
         renderer.startFrame();
 
+        renderer.bindDescriptorSet(descriptorSet);
         renderer.drawMesh(mesh);
         auto matrices = createMatrices(renderer.getSwapchainWidth(), renderer.getSwapchainHeight());
         renderer.updateUniformBuffer<UniformBufferObject>(uniforms, matrices);
@@ -57,6 +61,7 @@ int main() {
     }
     renderer.waitDeviceIdle();
 
+    renderer.destroyDescriptorSet(descriptorSet);
     renderer.destroyUniformBuffer(uniforms);
     renderer.destroyTexture(texture);
     renderer.destroyMesh(mesh);
