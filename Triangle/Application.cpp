@@ -45,22 +45,28 @@ int main() {
 
     DescriptorSet descriptorSet = renderer.createDescriptorSet(uniforms, texture);
 
-    renderer.createGraphicsPipeline(descriptorSet);
+    GraphicsPipeline pipeline = renderer.createGraphicsPipeline("Shaders/vert.spv","Shaders/frag.spv", descriptorSet);
 
 
     while (!window->ShouldClose()) {
         window->PollEvents();
-        renderer.startFrame();
-
-        renderer.bindDescriptorSet(descriptorSet);
-        renderer.drawMesh(mesh);
+        
+        // Update
         auto matrices = createMatrices(renderer.getSwapchainWidth(), renderer.getSwapchainHeight());
         renderer.updateUniformBuffer<UniformBufferObject>(uniforms, matrices);
+
+        // Draw
+        renderer.startFrame();
+
+        renderer.bindGraphicsPipeline(pipeline);
+        renderer.bindDescriptorSet(descriptorSet);
+        renderer.drawMesh(mesh);
 
         renderer.endFrame();
     }
     renderer.waitDeviceIdle();
 
+    renderer.destroyGraphicsPipeline(pipeline);
     renderer.destroyDescriptorSet(descriptorSet);
     renderer.destroyUniformBuffer(uniforms);
     renderer.destroyTexture(texture);

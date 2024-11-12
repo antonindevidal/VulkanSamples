@@ -6,6 +6,7 @@
 #include "Texture.hpp"
 #include "DescriptorSet.hpp"
 #include "Instance.hpp"
+#include "GraphicsPipeline.hpp"
 
 class Renderer
 {
@@ -22,7 +23,6 @@ public:
 	void endFrame();
 
 	VkCommandBuffer getCommandBuffer();
-	VkPipelineLayout getPipelineLayout();
 	uint32_t getSwapchainWidth();
 	uint32_t getSwapchainHeight();
 
@@ -35,6 +35,8 @@ private:
 	Device _device;
 	Instance _instance;
 
+	GraphicsPipeline _currentGraphicsPipeline;
+
 
 	VkSwapchainKHR _swapChain;
 	std::vector<VkImage> _swapChainImages;
@@ -45,8 +47,6 @@ private:
 
 	VkDescriptorPool _descriptorPool;
 
-	VkPipelineLayout _pipelineLayout;
-	VkPipeline _graphicsPipeline;
 	std::vector<VkFramebuffer> _swapChainFramebuffers;
 
 	VkCommandPool _commandPool;
@@ -110,7 +110,9 @@ private:
 
 public:
 	// Graphics pipeline
-	void createGraphicsPipeline(DescriptorSet descriptorSet);
+	GraphicsPipeline createGraphicsPipeline(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, DescriptorSet descriptorSet);
+	void destroyGraphicsPipeline(GraphicsPipeline graphicsPipeline);
+	void bindGraphicsPipeline(GraphicsPipeline graphicsPipeline);
 
 	// Buffers
 	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
