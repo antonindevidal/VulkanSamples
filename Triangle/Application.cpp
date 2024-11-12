@@ -22,7 +22,9 @@ int main() {
     renderer.createRenderer(window);
 
     Mesh mesh = renderer.createMesh(vertices, indices);
-    
+    Texture texture = renderer.createTexture("Textures/cat.jpg");
+
+    renderer.createDescriptorSets(texture.descriptorInfo());
 
     while (!window->ShouldClose()) {
         window->PollEvents();
@@ -34,6 +36,7 @@ int main() {
     }
     renderer.waitDeviceIdle();
 
+    renderer.destroyTexture(texture);
     renderer.destroyMesh(mesh);
 
     renderer.destroy();

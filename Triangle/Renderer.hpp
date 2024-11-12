@@ -3,13 +3,11 @@
 #include "Device.hpp"
 #include "Mesh.hpp"
 #include "Buffer.hpp"
+#include "Texture.hpp"
 
 class Renderer
 {
 private:
-
-
-	
 	struct UniformBufferObject {
 		alignas(16) glm::mat4 model;
 		alignas(16) glm::mat4 view;
@@ -72,11 +70,6 @@ private:
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
 	std::vector<void*> uniformBuffersMapped;
 
-	VkImage _textureImage;
-	VkDeviceMemory _textureImageMemory;
-	VkImageView _textureImageView;
-	VkSampler _textureSampler;
-
 	VkImage _depthImage;
 	VkDeviceMemory _depthImageMemory;
 	VkImageView _depthImageView;
@@ -97,9 +90,7 @@ private:
 	void createCommandPool();
 	void createCommandBuffers();
 	void createSyncObjects();
-	void createTextureImage();
-	void createTextureImageView();
-	void createTextureSampler();
+	VkSampler createTextureSampler();
 	void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
 	VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
 	void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
@@ -124,7 +115,6 @@ private:
 	VkShaderModule createShaderModule(const std::vector<char>& code);
 	void createUniformBuffers();
 	void createDescriptorPool();
-	void createDescriptorSets();
 	void updateUniformBuffer(uint32_t currentFrame);
 	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
@@ -139,11 +129,17 @@ public:
 	Buffer createVertexBuffer(std::vector<Vertex> vertices);
 	Buffer createIndexBuffer(std::vector<index_t> indices);
 
-	//Mesh
+	// Mesh
 	Mesh createMesh(const std::vector<Vertex>& vertices, const std::vector<index_t>& indices);
 	void destroyMesh(Mesh& mesh);
 	void drawMesh(Mesh& mesh);
 
+	// Textures
+	Texture createTexture(const std::string& image);
+	void destroyTexture(Texture texture);
+
+
+	void createDescriptorSets(VkDescriptorImageInfo textureInfo);
 
 
 private:

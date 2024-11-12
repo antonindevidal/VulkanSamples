@@ -9,6 +9,7 @@ set(Triangle_SRC
     Mesh.cpp
     Renderer.cpp
     Helpers.cpp
+    Texture.cpp
 )
 
 set(Triangle_HDR
@@ -21,6 +22,7 @@ set(Triangle_HDR
     Mesh.hpp
     Renderer.hpp
     Helpers.cpp
+    Texture.hpp
 )
 
 add_custom_target(copy_resources ALL 
