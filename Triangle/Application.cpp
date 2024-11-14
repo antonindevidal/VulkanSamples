@@ -45,14 +45,15 @@ int main() {
     Texture texture2 = renderer.createTexture("Textures/cat2.jpg");
     UniformBuffer uniforms = renderer.createUniformBuffer<UniformBufferObject>();
 
-    VkDescriptorPool pool = renderer.createDescriptorPool({ {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,1},{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,1} }, 2);
+    VkDescriptorPool pool = renderer.createDescriptorPool({ {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,1},{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,2} }, 3);
     VkDescriptorSetLayout layoutUb = renderer.createDescriptorSetlayout(uniforms);
     VkDescriptorSetLayout layoutText = renderer.createDescriptorSetlayout(texture);
 
     DescriptorSet descriptorSetUb = renderer.createDescriptorSet(layoutUb, pool, uniforms);
     DescriptorSet descriptorSetText = renderer.createDescriptorSet(layoutText, pool, texture);
-    std::vector<VkDescriptorSetLayout> layouts = { layoutUb,layoutText };
-    GraphicsPipeline pipeline = renderer.createGraphicsPipeline("Shaders/vert.spv","Shaders/frag.spv", layouts);
+    DescriptorSet descriptorSetText2 = renderer.createDescriptorSet(layoutText, pool, texture2);
+
+    GraphicsPipeline pipeline = renderer.createGraphicsPipeline("Shaders/vert.spv","Shaders/frag.spv", { layoutUb,layoutText });
 
 
     while (!window->ShouldClose()) {
@@ -70,16 +71,19 @@ int main() {
         renderer.bindDescriptorSet(descriptorSetText,1);
         renderer.drawMesh(mesh);
 
-        //renderer.bindDescriptorSet(descriptorSet2);
+        renderer.bindDescriptorSet(descriptorSetText2,1);
         renderer.drawMesh(mesh2);
 
         renderer.endFrame();
     }
     renderer.waitDeviceIdle();
 
+    renderer.destroyDescriptorPool(pool);
+    renderer.destroyDescriptorSetLayout(layoutText);
+    renderer.destroyDescriptorSetLayout(layoutUb);
+
     renderer.destroyGraphicsPipeline(pipeline);
-    renderer.destroyDescriptorSet(descriptorSetUb);
-    renderer.destroyDescriptorSet(descriptorSetText);
+
     renderer.destroyUniformBuffer(uniforms);
     renderer.destroyTexture(texture);
     renderer.destroyTexture(texture2);

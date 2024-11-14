@@ -45,7 +45,6 @@ private:
 	std::vector<VkImageView> _swapChainImageViews;
 	VkRenderPass _renderPass;
 
-	VkDescriptorPool _descriptorPool;
 
 	std::vector<VkFramebuffer> _swapChainFramebuffers;
 
@@ -71,7 +70,6 @@ private:
 
 	void createQueues();
 	void createImageViews();
-	VkDescriptorSetLayout createDescriptorSetLayout();
 	void createRenderPass();
 	void createFramebuffers();
 	void createCommandPool();
@@ -100,7 +98,6 @@ private:
 	void cleanupSwapChain();
 
 	VkShaderModule createShaderModule(const std::vector<char>& code);
-	void createDescriptorPool();
 	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 
@@ -110,7 +107,7 @@ private:
 
 public:
 	// Graphics pipeline
-	GraphicsPipeline createGraphicsPipeline(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, std::vector<VkDescriptorSetLayout>& descriptorSetLayouts);
+	GraphicsPipeline createGraphicsPipeline(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, std::vector<VkDescriptorSetLayout> descriptorSetLayouts);
 	void destroyGraphicsPipeline(GraphicsPipeline graphicsPipeline);
 	void bindGraphicsPipeline(GraphicsPipeline graphicsPipeline);
 
@@ -136,16 +133,18 @@ public:
 	void destroyTexture(Texture texture);
 
 	// Descriptors
-	DescriptorSet createDescriptorSet(UniformBuffer uniformBuffer, Texture texture);
-	void destroyDescriptorSet(DescriptorSet descriptorSet);
-	void bindDescriptorSet(DescriptorSet descriptorSet, uint32_t index = 0);
-
+	
 	VkDescriptorPool createDescriptorPool(std::vector<std::pair<VkDescriptorType,uint32_t>> infos, uint32_t maxSets);
+	void destroyDescriptorPool(VkDescriptorPool pool);
+
 	VkDescriptorSetLayout createDescriptorSetlayout(Texture t);
 	VkDescriptorSetLayout createDescriptorSetlayout(UniformBuffer ub);
+	void destroyDescriptorSetLayout(VkDescriptorSetLayout layout);
+
 	DescriptorSet createDescriptorSet(VkDescriptorSetLayout layout, VkDescriptorPool pool, Texture t);
 	DescriptorSet createDescriptorSet(VkDescriptorSetLayout layout, VkDescriptorPool pool, UniformBuffer ub);
-
+	void destroyDescriptorSet(DescriptorSet descriptorSet);
+	void bindDescriptorSet(DescriptorSet descriptorSet, uint32_t index = 0);
 
 };
 
