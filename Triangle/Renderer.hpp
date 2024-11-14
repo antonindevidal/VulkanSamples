@@ -110,7 +110,7 @@ private:
 
 public:
 	// Graphics pipeline
-	GraphicsPipeline createGraphicsPipeline(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, DescriptorSet descriptorSet);
+	GraphicsPipeline createGraphicsPipeline(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, std::vector<VkDescriptorSetLayout>& descriptorSetLayouts);
 	void destroyGraphicsPipeline(GraphicsPipeline graphicsPipeline);
 	void bindGraphicsPipeline(GraphicsPipeline graphicsPipeline);
 
@@ -138,7 +138,13 @@ public:
 	// Descriptors
 	DescriptorSet createDescriptorSet(UniformBuffer uniformBuffer, Texture texture);
 	void destroyDescriptorSet(DescriptorSet descriptorSet);
-	void bindDescriptorSet(DescriptorSet descriptorSet);
+	void bindDescriptorSet(DescriptorSet descriptorSet, uint32_t index = 0);
+
+	VkDescriptorPool createDescriptorPool(std::vector<std::pair<VkDescriptorType,uint32_t>> infos, uint32_t maxSets);
+	VkDescriptorSetLayout createDescriptorSetlayout(Texture t);
+	VkDescriptorSetLayout createDescriptorSetlayout(UniformBuffer ub);
+	DescriptorSet createDescriptorSet(VkDescriptorSetLayout layout, VkDescriptorPool pool, Texture t);
+	DescriptorSet createDescriptorSet(VkDescriptorSetLayout layout, VkDescriptorPool pool, UniformBuffer ub);
 
 
 };
