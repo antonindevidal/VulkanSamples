@@ -997,7 +997,7 @@ void Renderer::destroyTexture(Texture texture)
 	vkFreeMemory(_device.getDevice(), texture._textureImageMemory, nullptr);
 }
 
-VkDescriptorPool Renderer::createDescriptorPool(std::vector<std::pair<VkDescriptorType, uint32_t>> infos, uint32_t maxSets)
+DescriptorPool Renderer::createDescriptorPool(std::vector<std::pair<VkDescriptorType, uint32_t>> infos, uint32_t maxSets)
 {
 	VkDescriptorPool pool;
 
@@ -1022,12 +1022,12 @@ VkDescriptorPool Renderer::createDescriptorPool(std::vector<std::pair<VkDescript
 	return pool;
 }
 
-void Renderer::destroyDescriptorPool(VkDescriptorPool pool)
+void Renderer::destroyDescriptorPool(DescriptorPool pool)
 {
 	vkDestroyDescriptorPool(_device.getDevice(), pool, nullptr);
 }
 
-VkDescriptorSetLayout Renderer::createDescriptorSetlayout(Texture t)
+DescriptorSetLayout Renderer::createDescriptorSetlayout(Texture t)
 {
 	VkDescriptorSetLayout layout;
 
@@ -1051,7 +1051,7 @@ VkDescriptorSetLayout Renderer::createDescriptorSetlayout(Texture t)
 	return layout;
 }
 
-VkDescriptorSetLayout Renderer::createDescriptorSetlayout(UniformBuffer ub)
+DescriptorSetLayout Renderer::createDescriptorSetlayout(UniformBuffer ub)
 {
 	VkDescriptorSetLayout layout;
 
@@ -1075,12 +1075,12 @@ VkDescriptorSetLayout Renderer::createDescriptorSetlayout(UniformBuffer ub)
 	return layout;
 }
 
-void Renderer::destroyDescriptorSetLayout(VkDescriptorSetLayout layout)
+void Renderer::destroyDescriptorSetLayout(DescriptorSetLayout layout)
 {
 	vkDestroyDescriptorSetLayout(_device.getDevice(), layout, nullptr);
 }
 
-DescriptorSet Renderer::createDescriptorSet(VkDescriptorSetLayout layout, VkDescriptorPool pool, Texture t)
+DescriptorSet Renderer::createDescriptorSet(DescriptorSetLayout layout, DescriptorPool pool, Texture t)
 {
 	DescriptorSet set;
 
@@ -1115,7 +1115,7 @@ DescriptorSet Renderer::createDescriptorSet(VkDescriptorSetLayout layout, VkDesc
 	return set;
 }
 
-DescriptorSet Renderer::createDescriptorSet(VkDescriptorSetLayout layout, VkDescriptorPool pool, UniformBuffer ub)
+DescriptorSet Renderer::createDescriptorSet(DescriptorSetLayout layout, DescriptorPool pool, UniformBuffer ub)
 {
 	DescriptorSet set;
 

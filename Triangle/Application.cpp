@@ -41,19 +41,23 @@ int main() {
 
     Mesh mesh = renderer.createMesh(vertices, indices);
     Mesh mesh2 = renderer.createMesh(vertices2, indices2);
+    Mesh mesh3 = renderer.createMesh(vertices3, indices3);
+
     Texture texture = renderer.createTexture("Textures/cat.jpg");
     Texture texture2 = renderer.createTexture("Textures/cat2.jpg");
+    
     UniformBuffer uniforms = renderer.createUniformBuffer<UniformBufferObject>();
 
-    VkDescriptorPool pool = renderer.createDescriptorPool({ {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,1},{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,2} }, 3);
-    VkDescriptorSetLayout layoutUb = renderer.createDescriptorSetlayout(uniforms);
-    VkDescriptorSetLayout layoutText = renderer.createDescriptorSetlayout(texture);
+    DescriptorPool pool = renderer.createDescriptorPool({ {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,1},{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,2} }, 3);
+    DescriptorSetLayout layoutUb = renderer.createDescriptorSetlayout(uniforms);
+    DescriptorSetLayout layoutText = renderer.createDescriptorSetlayout(texture);
 
     DescriptorSet descriptorSetUb = renderer.createDescriptorSet(layoutUb, pool, uniforms);
     DescriptorSet descriptorSetText = renderer.createDescriptorSet(layoutText, pool, texture);
     DescriptorSet descriptorSetText2 = renderer.createDescriptorSet(layoutText, pool, texture2);
 
     GraphicsPipeline pipeline = renderer.createGraphicsPipeline("Shaders/vert.spv","Shaders/frag.spv", { layoutUb,layoutText });
+    GraphicsPipeline pipeline2 = renderer.createGraphicsPipeline("Shaders/vert.spv","Shaders/colorfrag.spv", { layoutUb });
 
 
     while (!window->ShouldClose()) {
@@ -74,6 +78,10 @@ int main() {
         renderer.bindDescriptorSet(descriptorSetText2,1);
         renderer.drawMesh(mesh2);
 
+        renderer.bindGraphicsPipeline(pipeline2);
+        renderer.bindDescriptorSet(descriptorSetUb);
+        renderer.drawMesh(mesh3);
+
         renderer.endFrame();
     }
     renderer.waitDeviceIdle();
@@ -83,12 +91,14 @@ int main() {
     renderer.destroyDescriptorSetLayout(layoutUb);
 
     renderer.destroyGraphicsPipeline(pipeline);
+    renderer.destroyGraphicsPipeline(pipeline2);
 
     renderer.destroyUniformBuffer(uniforms);
     renderer.destroyTexture(texture);
     renderer.destroyTexture(texture2);
     renderer.destroyMesh(mesh);
     renderer.destroyMesh(mesh2);
+    renderer.destroyMesh(mesh3);
 
     renderer.destroy();
     window->Destroy();

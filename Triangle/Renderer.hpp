@@ -134,15 +134,15 @@ public:
 
 	// Descriptors
 	
-	VkDescriptorPool createDescriptorPool(std::vector<std::pair<VkDescriptorType,uint32_t>> infos, uint32_t maxSets);
-	void destroyDescriptorPool(VkDescriptorPool pool);
+	DescriptorPool createDescriptorPool(std::vector<std::pair<VkDescriptorType,uint32_t>> infos, uint32_t maxSets);
+	void destroyDescriptorPool(DescriptorPool pool);
 
-	VkDescriptorSetLayout createDescriptorSetlayout(Texture t);
-	VkDescriptorSetLayout createDescriptorSetlayout(UniformBuffer ub);
-	void destroyDescriptorSetLayout(VkDescriptorSetLayout layout);
+	DescriptorSetLayout createDescriptorSetlayout(Texture t);
+	DescriptorSetLayout createDescriptorSetlayout(UniformBuffer ub);
+	void destroyDescriptorSetLayout(DescriptorSetLayout layout);
 
-	DescriptorSet createDescriptorSet(VkDescriptorSetLayout layout, VkDescriptorPool pool, Texture t);
-	DescriptorSet createDescriptorSet(VkDescriptorSetLayout layout, VkDescriptorPool pool, UniformBuffer ub);
+	DescriptorSet createDescriptorSet(DescriptorSetLayout layout, DescriptorPool pool, Texture t);
+	DescriptorSet createDescriptorSet(DescriptorSetLayout layout, DescriptorPool pool, UniformBuffer ub);
 	void destroyDescriptorSet(DescriptorSet descriptorSet);
 	void bindDescriptorSet(DescriptorSet descriptorSet, uint32_t index = 0);
 
