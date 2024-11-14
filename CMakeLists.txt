@@ -8,5 +8,5 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 project ("VulkanSamples")
 
 # Include subprojects
-add_subdirectory ("Triangle")
+add_subdirectory ("3DRendering")
 add_subdirectory("Dependencies")

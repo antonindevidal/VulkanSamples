@@ -1,6 +1,6 @@
-add_executable(Triangle)
+add_executable(3DRendering)
 
-set(Triangle_SRC 
+set(3DRendering_SRC 
     Application.cpp
     Window.cpp
     Device.cpp
@@ -15,7 +15,7 @@ set(Triangle_SRC
     GraphicsPipeline.cpp
 )
 
-set(Triangle_HDR
+set(3DRendering_HDR
     Application.h
     Window.hpp
     pch.h
@@ -33,21 +33,21 @@ set(Triangle_HDR
 
 add_custom_target(copy_resources ALL 
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/Triangle/Textures/ 
-        ${CMAKE_BINARY_DIR}/Triangle/Textures/
+        ${CMAKE_SOURCE_DIR}/3DRendering/Textures/ 
+        ${CMAKE_BINARY_DIR}/3DRendering/Textures/
 )
-add_dependencies(Triangle copy_resources)
+add_dependencies(3DRendering copy_resources)
 
 add_custom_target(copy_models ALL 
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/Triangle/Models/ 
-        ${CMAKE_BINARY_DIR}/Triangle/Models/
+        ${CMAKE_SOURCE_DIR}/3DRendering/Models/ 
+        ${CMAKE_BINARY_DIR}/3DRendering/Models/
 )
-add_dependencies(Triangle copy_models)
+add_dependencies(3DRendering copy_models)
 
 
-target_sources(Triangle PRIVATE ${Triangle_SRC})
-target_sources(Triangle PUBLIC ${Triangle_HDR})
+target_sources(3DRendering PRIVATE ${3DRendering_SRC})
+target_sources(3DRendering PUBLIC ${3DRendering_HDR})
 
 
 include_directories(${CMAKE_SOURCE_DIR}/Dependencies)
@@ -55,4 +55,4 @@ include_directories(${CMAKE_SOURCE_DIR}/Dependencies)
 
 
 find_package(Vulkan REQUIRED)
-target_link_libraries(Triangle PUBLIC glfw glm Vulkan::Vulkan)
+target_link_libraries(3DRendering PUBLIC glfw glm Vulkan::Vulkan)
