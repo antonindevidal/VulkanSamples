@@ -7,6 +7,8 @@ C:\VulkanSDK\1.3.296.0\Bin\glslc color.frag -o ..\..\out\build\x64-Debug\GrassGe
 
 C:\VulkanSDK\1.3.296.0\Bin\glslc grass.vert -o ..\..\out\build\x64-Debug\GrassGeneration\Shaders\grassvert.spv
 
+C:\VulkanSDK\1.3.296.0\Bin\glslc grassGen.comp -o ..\..\out\build\x64-Debug\GrassGeneration\Shaders\grassGenComp.spv
+
 
 
 pause

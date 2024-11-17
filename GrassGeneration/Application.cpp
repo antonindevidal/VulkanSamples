@@ -13,8 +13,6 @@
 #include "Buffer.hpp"
 #include "Mesh.hpp"
 
-
-
 UniformBufferObject createMatrices(int width, int height)
 {
     static auto startTime = std::chrono::high_resolution_clock::now();
@@ -56,21 +54,33 @@ int main() {
     Texture texture = renderer.createTexture("Textures/grass.png");
     
     UniformBuffer uniforms = renderer.createUniformBuffer<UniformBufferObject>();
-    ShaderStorageBufferObject ssboGrass = renderer.createShaderStorageBuffer(grassData);
+    //ShaderStorageBufferObject ssboGrass = renderer.createShaderStorageBuffer(grassData);
+    ShaderStorageBufferObject ssboGrass = renderer.createShaderStorageBuffer(sizeof(GrassBladeData),nbBlades);
 
-    DescriptorPool pool = renderer.createDescriptorPool({ {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,1},{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,2}, {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1 } }, 4);
+    DescriptorPool pool = renderer.createDescriptorPool({ {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,1},{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,2}, {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 2 } }, 10);
 
     DescriptorSetLayout layoutUb = renderer.createDescriptorSetLayoutBuffer();
     DescriptorSetLayout layoutText = renderer.createDescriptorSetlayout(texture);
     DescriptorSetLayout layoutGrassSSBO = renderer.createDescriptorSetLayoutGrass();
+    DescriptorSetLayout layoutGrassSSBOCompute = renderer.createDescriptorSetLayoutGrassCompute();
 
     DescriptorSet descriptorSetUb = renderer.createDescriptorSet(layoutUb, pool, uniforms);
     DescriptorSet descriptorSetText = renderer.createDescriptorSet(layoutText, pool, texture);
     DescriptorSet descriptorSetGrass = renderer.createDescriptorSetGrass(layoutGrassSSBO, pool, ssboGrass, texture);
+    DescriptorSet descriptorSetGrassCompute = renderer.createDescriptorSetGrassCompute(layoutGrassSSBOCompute, pool, ssboGrass);
 
     GraphicsPipeline pipeline = renderer.createGraphicsPipeline("Shaders/vert.spv","Shaders/colorfrag.spv", { layoutUb,layoutText });
     GraphicsPipeline pipelineGrass = renderer.createGraphicsPipeline("Shaders/grassvert.spv","Shaders/frag.spv", { layoutUb, layoutGrassSSBO });
 
+    ComputePipeline pipelineGrassGen = renderer.createComputePipeline("Shaders/grassGenComp.spv", { layoutGrassSSBOCompute });
+
+    
+    renderer.startComputeRecoring();
+    renderer.bindComputePipeline(pipelineGrassGen);
+    renderer.bindDescriptorSet(descriptorSetGrassCompute, 0, VK_PIPELINE_BIND_POINT_COMPUTE);
+    renderer.endComputeRecoring(nbBlades, 1, 1);
+
+    renderer.waitDeviceIdle();
 
     while (!window->ShouldClose()) {
         window->PollEvents();
@@ -102,7 +112,9 @@ int main() {
     renderer.destroyDescriptorSetLayout(layoutText);
     renderer.destroyDescriptorSetLayout(layoutUb);
     renderer.destroyDescriptorSetLayout(layoutGrassSSBO);
+    renderer.destroyDescriptorSetLayout(layoutGrassSSBOCompute);
 
+    renderer.destroyComputePipeline(pipelineGrassGen);
     renderer.destroyGraphicsPipeline(pipeline);
     renderer.destroyGraphicsPipeline(pipelineGrass);
 

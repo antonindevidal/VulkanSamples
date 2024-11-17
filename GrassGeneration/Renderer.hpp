@@ -36,6 +36,7 @@ private:
 	Instance _instance;
 
 	GraphicsPipeline _currentGraphicsPipeline;
+	ComputePipeline _currentComputePipeline;
 
 
 	VkSwapchainKHR _swapChain;
@@ -58,6 +59,7 @@ private:
 
 	VkQueue _graphicsQueue;
 	VkQueue _presentQueue;
+	VkQueue _computeQueue;
 
 	uint32_t _currentFrame = 0;
 	uint32_t _currentImageIndex = 0;
@@ -110,13 +112,20 @@ public:
 	void destroyGraphicsPipeline(GraphicsPipeline graphicsPipeline);
 	void bindGraphicsPipeline(GraphicsPipeline graphicsPipeline);
 
+	// Compute pipeline
+	ComputePipeline createComputePipeline(const std::string& computeShaderPath, std::vector<VkDescriptorSetLayout> descriptorSetLayouts);
+	void destroyComputePipeline(ComputePipeline pipeline);
+	void bindComputePipeline(ComputePipeline pipeline);
+	void startComputeRecoring();
+	void endComputeRecoring(uint32_t x=1, uint32_t y=1, uint32_t z=1);
+
 	// Buffers
 	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 	void destroyBuffer(Buffer buffer);
 	Buffer createVertexBuffer(std::vector<Vertex> vertices);
 	Buffer createIndexBuffer(std::vector<index_t> indices);
+
 	ShaderStorageBufferObject createShaderStorageBuffer(size_t objectSize, uint32_t objectCount);
-	
 	template<typename T>
 	ShaderStorageBufferObject createShaderStorageBuffer(std::vector<T>& data);
 	void destroyShaderStorageBufferObject(ShaderStorageBufferObject ssbo);
@@ -145,14 +154,17 @@ public:
 	DescriptorSetLayout createDescriptorSetlayout(Texture t);
 	DescriptorSetLayout createDescriptorSetLayoutBuffer(uint32_t bindingIndex = 0);
 	DescriptorSetLayout createDescriptorSetLayoutGrass();
+	DescriptorSetLayout createDescriptorSetLayoutGrassCompute();
 
 	void destroyDescriptorSetLayout(DescriptorSetLayout layout);
 
 	DescriptorSet createDescriptorSet(DescriptorSetLayout layout, DescriptorPool pool, Texture t);
 	DescriptorSet createDescriptorSet(DescriptorSetLayout layout, DescriptorPool pool, UniformBuffer ub);
 	DescriptorSet createDescriptorSetGrass(DescriptorSetLayout layout, DescriptorPool pool, ShaderStorageBufferObject ssbo, Texture texture);
+	DescriptorSet createDescriptorSetGrassCompute(DescriptorSetLayout layout, DescriptorPool pool, ShaderStorageBufferObject ssbo);
+
 	void destroyDescriptorSet(DescriptorSet descriptorSet);
-	void bindDescriptorSet(DescriptorSet descriptorSet, uint32_t index = 0);
+	void bindDescriptorSet(DescriptorSet descriptorSet, uint32_t index = 0, VkPipelineBindPoint bindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS);
 
 };
 
