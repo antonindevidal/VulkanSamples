@@ -268,6 +268,16 @@ void Renderer::createCommandBuffers()
 	if (vkAllocateCommandBuffers(_device.getDevice(), &allocInfo, _commandBuffers.data()) != VK_SUCCESS) {
 		throw std::runtime_error("Error : failed to allocate command buffers!");
 	}
+
+	VkCommandBufferAllocateInfo allocInfoCompute{};
+	allocInfoCompute.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfoCompute.commandPool = _commandPool;
+	allocInfoCompute.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfoCompute.commandBufferCount = 1;
+
+	if (vkAllocateCommandBuffers(_device.getDevice(), &allocInfoCompute, &_computeCommandBuffer) != VK_SUCCESS) {
+		throw std::runtime_error("Error : failed to allocate command buffers!");
+	}
 }
 
 void Renderer::createSyncObjects()
@@ -973,24 +983,25 @@ void Renderer::destroyComputePipeline(ComputePipeline pipeline)
 void Renderer::bindComputePipeline(ComputePipeline pipeline)
 {
 	_currentComputePipeline = pipeline;
-	vkCmdBindPipeline(_commandBuffers[_currentFrame], VK_PIPELINE_BIND_POINT_COMPUTE, pipeline._pipeline);
+	vkCmdBindPipeline(_computeCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline._pipeline);
 }
 
 void Renderer::startComputeRecoring()
 {
+	vkResetCommandBuffer(_computeCommandBuffer,0);
 	VkCommandBufferBeginInfo beginInfo{};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-	if (vkBeginCommandBuffer(_commandBuffers[_currentFrame], &beginInfo) != VK_SUCCESS) {
+	if (vkBeginCommandBuffer(_computeCommandBuffer, &beginInfo) != VK_SUCCESS) {
 		throw std::runtime_error("Error : failed to begin recording compute command buffer!");
 	}
 }
 
 void Renderer::endComputeRecoring(uint32_t x, uint32_t y, uint32_t z)
 {
-	vkCmdDispatch(_commandBuffers[_currentFrame], x, y, z);
+	vkCmdDispatch(_computeCommandBuffer, x, y, z);
 
-	if (vkEndCommandBuffer(_commandBuffers[_currentFrame]) != VK_SUCCESS) {
+	if (vkEndCommandBuffer(_computeCommandBuffer) != VK_SUCCESS) {
 		throw std::runtime_error("Error : failed to record compute command buffer!");
 	}
 
@@ -998,7 +1009,7 @@ void Renderer::endComputeRecoring(uint32_t x, uint32_t y, uint32_t z)
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
 	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &_commandBuffers[_currentFrame];
+	submitInfo.pCommandBuffers = &_computeCommandBuffer;
 
 	if (vkQueueSubmit(_computeQueue, 1, &submitInfo, nullptr) != VK_SUCCESS) {
 		throw std::runtime_error("failed to submit compute command buffer!");
@@ -1440,7 +1451,7 @@ void Renderer::bindDescriptorSet(DescriptorSet descriptorSet, uint32_t index, Vk
 		{
 			throw std::runtime_error("Error : Can't bind Descriptor set if no compute pipeline bound !");
 		}
-		vkCmdBindDescriptorSets(getCommandBuffer(), bindPoint, _currentComputePipeline._pipelineLayout, index, 1, &(descriptorSet._descriptorSets[_currentFrame]), 0, nullptr);
+		vkCmdBindDescriptorSets(_computeCommandBuffer, bindPoint, _currentComputePipeline._pipelineLayout, index, 1, &(descriptorSet._descriptorSets[_currentFrame]), 0, nullptr);
 	}
 }
 

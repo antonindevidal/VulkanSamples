@@ -51,6 +51,7 @@ private:
 
 	VkCommandPool _commandPool;
 	std::vector<VkCommandBuffer> _commandBuffers;
+	VkCommandBuffer _computeCommandBuffer;
 	std::vector<VkSemaphore> _imageAvailableSemaphores;
 	std::vector<VkSemaphore> _renderFinishedSemaphores;
 	std::vector<VkFence> _inFlightFences;

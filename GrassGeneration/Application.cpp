@@ -32,14 +32,8 @@ UniformBufferObject createMatrices(int width, int height)
 int main() {
 
     // Create grassBlade data
-    uint32_t nbBlades = 10;
-    std::vector<GrassBladeData> grassData;
-    grassData.resize(nbBlades);
+    uint32_t nbBlades = 1000000;
 
-    for (int i = 0; i < nbBlades; i++)
-    {
-        grassData[i] = { { i, 0.0f, 0.0f, 1.0f} };
-    }
 
 
     std::shared_ptr<Window> window = std::make_shared<Window>();
@@ -80,7 +74,6 @@ int main() {
     renderer.bindDescriptorSet(descriptorSetGrassCompute, 0, VK_PIPELINE_BIND_POINT_COMPUTE);
     renderer.endComputeRecoring(nbBlades, 1, 1);
 
-    renderer.waitDeviceIdle();
 
     while (!window->ShouldClose()) {
         window->PollEvents();
@@ -100,7 +93,7 @@ int main() {
         renderer.bindGraphicsPipeline(pipelineGrass);
         renderer.bindDescriptorSet(descriptorSetUb);
         renderer.bindDescriptorSet(descriptorSetGrass, 1);
-        renderer.drawMesh(meshGrass, 10);
+        renderer.drawMesh(meshGrass, nbBlades);
 
 
 
