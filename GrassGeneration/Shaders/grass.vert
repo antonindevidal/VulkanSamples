@@ -13,7 +13,8 @@ layout(binding = 0) uniform UniformBufferObject {
 
 
 layout(std140, binding = 0, set = 1) readonly buffer GrassBladeSSBOIn {
-   GrassBlade grassBlade[ ];
+    vec4 data;
+    vec4 grassBlade[ ];
 };
 
 layout(location = 0) in vec3 inPosition;
@@ -23,7 +24,13 @@ layout(location = 2) in vec2 inTexCoord;
 layout(location = 0) out vec3 fragColor;
 layout(location = 1) out vec2 fragTexCoord;
 void main() {
-    gl_Position = ubo.proj * ubo.view * ubo.model * (grassBlade[gl_InstanceIndex].position + vec4(inPosition,1.0f));
+    gl_Position = ubo.proj * ubo.view * ubo.model * 
+            vec4(grassBlade[gl_InstanceIndex].x + inPosition.x, 
+                 grassBlade[gl_InstanceIndex].y + inPosition.y, 
+                 grassBlade[gl_InstanceIndex].z + inPosition.z, 
+                 1.0f 
+                 );
+
     fragColor = inColor;    
     fragTexCoord = inTexCoord;
 }

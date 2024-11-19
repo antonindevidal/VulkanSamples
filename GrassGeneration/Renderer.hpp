@@ -126,10 +126,12 @@ public:
 	Buffer createVertexBuffer(std::vector<Vertex> vertices);
 	Buffer createIndexBuffer(std::vector<index_t> indices);
 
-	ShaderStorageBufferObject createShaderStorageBuffer(size_t objectSize, uint32_t objectCount);
+	ShaderStorageBufferObject createShaderStorageBuffer(size_t size);
 	template<typename T>
 	ShaderStorageBufferObject createShaderStorageBuffer(std::vector<T>& data);
 	void destroyShaderStorageBufferObject(ShaderStorageBufferObject ssbo);
+	template<typename T>
+	void updateSSBO(ShaderStorageBufferObject buffer, const T& data, size_t offset = 0);
 
 	template<typename T>
 	UniformBuffer createUniformBuffer();
@@ -200,7 +202,7 @@ template<typename T>
 ShaderStorageBufferObject Renderer::createShaderStorageBuffer(std::vector<T>& values)
 {
 	Buffer stagingBuffer;
-	ShaderStorageBufferObject ssbo = createShaderStorageBuffer(sizeof(T), values.size());
+	ShaderStorageBufferObject ssbo = createShaderStorageBuffer(sizeof(T) * values.size());
 
 	VkDeviceSize bufferSize = sizeof(T) * values.size();
 
@@ -214,4 +216,19 @@ ShaderStorageBufferObject Renderer::createShaderStorageBuffer(std::vector<T>& va
 	copyBuffer(stagingBuffer._buffer, ssbo._buffer, bufferSize);
 	destroyBuffer(stagingBuffer);
 	return ssbo;
+}
+
+template<typename T>
+void Renderer::updateSSBO(ShaderStorageBufferObject buffer, const T& value, size_t offset)
+{
+	Buffer stagingBuffer;
+	createBuffer(sizeof(T), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer._buffer, stagingBuffer._bufferMemory);
+
+	void* data;
+	vkMapMemory(_device.getDevice(), stagingBuffer._bufferMemory, 0, sizeof(T), 0, &data);
+	memcpy(data, &value, sizeof(T));
+	vkUnmapMemory(_device.getDevice(), stagingBuffer._bufferMemory);
+
+	copyBuffer(stagingBuffer._buffer, buffer._buffer, sizeof(T));
+	destroyBuffer(stagingBuffer);
 }

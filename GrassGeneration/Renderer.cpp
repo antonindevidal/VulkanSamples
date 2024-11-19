@@ -1539,11 +1539,11 @@ Buffer Renderer::createIndexBuffer(std::vector<index_t> indices)
 	return indexBuffer;
 }
 
-ShaderStorageBufferObject Renderer::createShaderStorageBuffer(size_t objectSize, uint32_t objectCount)
+ShaderStorageBufferObject Renderer::createShaderStorageBuffer(size_t size)
 {
 	ShaderStorageBufferObject ssbo;
-	createBuffer(objectSize * objectCount, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, ssbo._buffer, ssbo._bufferMemory);
-	ssbo._bufferSize = objectSize * objectCount;
+	createBuffer(size, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, ssbo._buffer, ssbo._bufferMemory);
+	ssbo._bufferSize = size;
 	return ssbo;
 }
 

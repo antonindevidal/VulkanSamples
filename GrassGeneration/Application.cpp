@@ -31,11 +31,6 @@ UniformBufferObject createMatrices(int width, int height)
 
 int main() {
 
-    // Create grassBlade data
-    uint32_t nbBlades = 1000000;
-
-
-
     std::shared_ptr<Window> window = std::make_shared<Window>();
     window->Create(windowName);
     
@@ -49,7 +44,10 @@ int main() {
     
     UniformBuffer uniforms = renderer.createUniformBuffer<UniformBufferObject>();
     //ShaderStorageBufferObject ssboGrass = renderer.createShaderStorageBuffer(grassData);
-    ShaderStorageBufferObject ssboGrass = renderer.createShaderStorageBuffer(sizeof(GrassBladeData),nbBlades);
+    ShaderStorageBufferObject ssboGrass = renderer.createShaderStorageBuffer(sizeof(GrassBladeData));
+    std::cout << sizeof(glm::vec4)<< ' ' << sizeof(GrassBladeData) << std::endl;
+    renderer.updateSSBO<glm::vec4>(ssboGrass, glm::vec4{-10,-10,20,20});
+
 
     DescriptorPool pool = renderer.createDescriptorPool({ {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,1},{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,2}, {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 2 } }, 10);
 
@@ -72,7 +70,7 @@ int main() {
     renderer.startComputeRecoring();
     renderer.bindComputePipeline(pipelineGrassGen);
     renderer.bindDescriptorSet(descriptorSetGrassCompute, 0, VK_PIPELINE_BIND_POINT_COMPUTE);
-    renderer.endComputeRecoring(nbBlades, 1, 1);
+    renderer.endComputeRecoring(NB_BLADES, 1, 1);
 
 
     while (!window->ShouldClose()) {
@@ -93,7 +91,7 @@ int main() {
         renderer.bindGraphicsPipeline(pipelineGrass);
         renderer.bindDescriptorSet(descriptorSetUb);
         renderer.bindDescriptorSet(descriptorSetGrass, 1);
-        renderer.drawMesh(meshGrass, nbBlades);
+        renderer.drawMesh(meshGrass, NB_BLADES);
 
 
 

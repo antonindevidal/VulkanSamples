@@ -5,9 +5,11 @@
 
 std::string windowName = "Vulkan triangle";
 
+static const uint32_t NB_BLADES = 10;
 
 struct GrassBladeData {
-	glm::vec4 position;
+	glm::vec4 data; // x, y, width, depth
+	std::array<glm::vec4, NB_BLADES> positions;
 };
 
 const std::vector<Vertex> verticesGround = {
