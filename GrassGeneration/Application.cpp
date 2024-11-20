@@ -46,7 +46,7 @@ int main() {
     //ShaderStorageBufferObject ssboGrass = renderer.createShaderStorageBuffer(grassData);
     ShaderStorageBufferObject ssboGrass = renderer.createShaderStorageBuffer(sizeof(GrassBladeData));
     std::cout << sizeof(glm::vec4)<< ' ' << sizeof(GrassBladeData) << std::endl;
-    renderer.updateSSBO<glm::vec4>(ssboGrass, glm::vec4{-10,-10,20,20});
+    renderer.updateSSBO<glm::vec4>(ssboGrass, glm::vec4{-10,-10,20,NB_BLADES});
 
 
     DescriptorPool pool = renderer.createDescriptorPool({ {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,1},{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,2}, {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 2 } }, 10);

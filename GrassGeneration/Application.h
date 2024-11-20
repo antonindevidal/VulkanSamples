@@ -5,10 +5,10 @@
 
 std::string windowName = "Vulkan triangle";
 
-static const uint32_t NB_BLADES = 10;
+static const uint32_t NB_BLADES = 10000;
 
 struct GrassBladeData {
-	glm::vec4 data; // x, y, width, depth
+	glm::vec4 data; // x, y, width, nbBlades
 	std::array<glm::vec4, NB_BLADES> positions;
 };
 

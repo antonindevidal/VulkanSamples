@@ -12,10 +12,33 @@ layout(std140, binding = 0, set = 0) buffer GrassBladeSSBOIn {
 };
 
 
+
+float rand(vec2 c){
+	return fract(sin(dot(c.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+
+uint lowbias32(uint x)
+{
+    x ^= x >> 16;
+    x *= 0x7feb352dU;
+    x ^= x >> 15;
+    x *= 0x846ca68bU;
+    x ^= x >> 16;
+    return x;
+}
+
+
 layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 void main() 
 {
     uint index = gl_GlobalInvocationID.x;  
+    int sq = int(sqrt(data.w));
 
-    grassBlade[index] = vec4(index + data.x, data.y, 0.0f, 1.0f);
+    float x = data.x + (index%sq)*(data.z/sq);
+    float y = data.y + (index/sq)*(data.z/sq);
+
+    float noise = float(lowbias32(index))/ float(0xffffffffU);
+
+    grassBlade[index] = vec4(x + noise ,y + noise, 0.0f, noise * 6.28);
 }
