@@ -6,6 +6,20 @@
 std::string windowName = "Vulkan Grass Generation";
 
 static const uint32_t NB_BLADES = 10000;
+static const float CAMERA_SPEED= 5;
+static const float CAMERA_SENSITIVITY= 0.1;
+
+
+
+struct Camera
+{
+	glm::mat4 view;
+	glm::vec3 position = { 10.0f, 10.0f, 5.0f };
+	glm::vec3 front = { -1.0, 0.0, 0.0 };
+	glm::vec3 up = { 0.0, 0.0, 1.0 };
+	float yaw = 45.0f;
+	float pitch = 0.0f;
+};
 
 struct GrassBlade {
 	glm::vec4 position; //x, y, z, Zrotation

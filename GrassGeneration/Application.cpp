@@ -13,23 +13,68 @@
 #include "Buffer.hpp"
 #include "Mesh.hpp"
 
-UniformBufferObject createUniformBuffer(int width, int height, float totalTime)
+UniformBufferObject createUniformBuffer(int width, int height, float totalTime, glm::mat4 view)
 {
-
-
     UniformBufferObject ubo{};
     ubo.model = glm::rotate(glm::mat4(1.0f),glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    ubo.view = glm::lookAt(glm::vec3(10.0f, 10.0f, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    ubo.view = view;//glm::lookAt(camPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     ubo.proj = glm::perspective(glm::radians(45.0f), width / (float)height, 0.1f, 1000.0f);
     ubo.proj[1][1] *= -1;
     ubo.time = totalTime;
     return ubo;
 }
 
+void moveCamera(Camera& camera, std::shared_ptr<Window> window, float deltaTime)
+{
+
+    float speed = CAMERA_SPEED * deltaTime;
+    if (window->isKeyPressed(GLFW_KEY_W))
+        camera.position += speed * camera.front;
+    if (window->isKeyPressed(GLFW_KEY_S))
+        camera.position -= speed * camera.front;
+    if (window->isKeyPressed(GLFW_KEY_A))
+        camera.position -= glm::normalize(glm::cross(camera.front, camera.up)) * speed;
+    if (window->isKeyPressed(GLFW_KEY_D))
+        camera.position += glm::normalize(glm::cross(camera.front, camera.up)) * speed;
+    if (window->isKeyPressed(GLFW_KEY_LEFT_SHIFT))
+        camera.position.z -= speed;
+    if (window->isKeyPressed(GLFW_KEY_SPACE))
+        camera.position.z += speed;
+
+    auto mousePos = window->getMousePosition();
+    auto screenSize = window->getFrameBufferSize();
+    float xoffset = mousePos.x - (screenSize.x/2);
+    float yoffset = (screenSize.y / 2) - mousePos.y; // reversed since y-coordinates range from bottom to top
+
+    xoffset *= CAMERA_SENSITIVITY;
+    yoffset *= CAMERA_SENSITIVITY;
+
+    
+    camera.yaw += xoffset;
+    camera.pitch += yoffset;
+    if (camera.pitch > 89.0f)
+        camera.pitch = 89.0f;
+    if (camera.pitch < -89.0f)
+        camera.pitch = -89.0f;
+
+    glm::vec3 direction;
+    direction.x = -cos(glm::radians(camera.yaw)) * cos(glm::radians(camera.pitch));
+    direction.y = sin(glm::radians(camera.yaw)) * cos(glm::radians(camera.pitch));
+    direction.z = sin(glm::radians(camera.pitch));
+    camera.front = glm::normalize(direction);
+    
+    camera.view = glm::lookAt(camera.position, camera.position + camera.front, camera.up);
+    window->setCursorPosition(screenSize.x / 2, screenSize.y / 2);
+}
+
+
 int main() {
+    std::chrono::steady_clock::time_point lastFrameTime;
+    Camera camera;
 
     std::shared_ptr<Window> window = std::make_shared<Window>();
     window->Create(windowName);
+
     
     Renderer renderer{};
     renderer.createRenderer(window);
@@ -77,8 +122,12 @@ int main() {
 
         static auto startTime = std::chrono::high_resolution_clock::now();
         auto currentTime = std::chrono::high_resolution_clock::now();
+        float deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - lastFrameTime).count();
         float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-        auto matrices = createUniformBuffer(renderer.getSwapchainWidth(), renderer.getSwapchainHeight(), time);
+        lastFrameTime = currentTime;
+
+        moveCamera(camera,window,deltaTime);
+        auto matrices = createUniformBuffer(renderer.getSwapchainWidth(), renderer.getSwapchainHeight(), time, camera.view);
         renderer.updateUniformBuffer<UniformBufferObject>(uniforms, matrices);
 
         // Draw

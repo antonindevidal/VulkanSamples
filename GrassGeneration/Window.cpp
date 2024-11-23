@@ -6,7 +6,8 @@ std::vector<Window::FrameBufferResizeCallback> Window::_frameBufferResizeCallbac
 
 Window::Window() :
 	_size(800, 600),
-	_window(nullptr)
+	_window(nullptr),
+	_mousePosition()
 {
 }
 
@@ -29,6 +30,8 @@ void Window::Create(std::string& name)
 		}
 	});
 	glfwSwapInterval(1);
+
+	glfwSetCursorPos(_window,_size.x / 2, _size.y / 2);
 }
 
 bool Window::ShouldClose()
@@ -59,6 +62,24 @@ glm::uvec2 Window::GetSize()
 	return { x,y };
 }
 
+bool Window::isKeyPressed(const unsigned int& keycode)
+{
+	auto state = glfwGetKey(_window, keycode);
+	return state == GLFW_REPEAT || state == GLFW_PRESS;
+}
+
+void Window::setCursorPosition(uint32_t x, uint32_t y)
+{
+	glfwSetCursorPos(_window, x, y);
+}
+
+glm::vec2 Window::getMousePosition()
+{
+	double x, y;
+	glfwGetCursorPos(_window, &x, &y);
+	return {x,y };
+}
+
 const char** Window::getRequiredExtensions(uint32_t& extensionCount)
 {
 	return glfwGetRequiredInstanceExtensions(&extensionCount);
@@ -80,3 +101,4 @@ void Window::addFrameBufferResizeCallback(FrameBufferResizeCallback callback)
 {
 	_frameBufferResizeCallbacks.push_back(callback);
 }
+

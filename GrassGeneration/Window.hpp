@@ -24,6 +24,11 @@ public:
 	void Destroy();
 	glm::uvec2 GetSize();
 
+	bool isKeyPressed(const unsigned int& keycode);
+	
+	void setCursorPosition(uint32_t x, uint32_t y);
+	glm::vec2 getMousePosition();
+
 	const char** getRequiredExtensions(uint32_t& extensionCount);
 	HWND getWin32Window();
 	VkResult createSurface(VkInstance instance, VkSurfaceKHR* surface);
@@ -35,7 +40,9 @@ private:
 	glm::uvec2 _size;
 	GLFWwindow* _window;
 	
+	glm::uvec2 _mousePosition;
 
 	static std::vector<FrameBufferResizeCallback> _frameBufferResizeCallbacks;
+	void mouseCallback(GLFWwindow* window, double xpos, double ypos);
 };
 
