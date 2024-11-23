@@ -4,11 +4,12 @@
 struct GrassBlade
 {
     vec4 position;
+    vec4 data;
 };
 
 layout(std140, binding = 0, set = 0) buffer GrassBladeSSBOIn {
     vec4 data;
-    vec4 grassBlade[ ];
+    GrassBlade grassBlade[ ];
 };
 
 
@@ -40,5 +41,8 @@ void main()
 
     float noise = float(lowbias32(index))/ float(0xffffffffU);
 
-    grassBlade[index] = vec4(x + noise ,y + noise, 0.0f, noise * 6.28);
+    float heightFactor = (noise * 0.4) + 0.8; // Height factor between 0.8 and 1.2
+
+    grassBlade[index].position = vec4(x + noise ,y + noise, 0.0f, noise * 6.28);
+    grassBlade[index].data = vec4(heightFactor, 0.0, 0.0, 0.0);
 }

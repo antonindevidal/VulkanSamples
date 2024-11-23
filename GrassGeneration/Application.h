@@ -3,13 +3,17 @@
 #include "pch.h"
 #include "Vertex.hpp"
 
-std::string windowName = "Vulkan triangle";
+std::string windowName = "Vulkan Grass Generation";
 
 static const uint32_t NB_BLADES = 10000;
 
+struct GrassBlade {
+	glm::vec4 position; //x, y, z, Zrotation
+	glm::vec4 data; // heightFactor, stiffness
+};
 struct GrassBladeData {
 	glm::vec4 data; // x, y, width, nbBlades
-	std::array<glm::vec4, NB_BLADES> positions;
+	std::array<GrassBlade, NB_BLADES> positions; // x, y, z, Zrotation
 };
 
 const std::vector<Vertex> verticesGround = {
@@ -28,4 +32,5 @@ struct UniformBufferObject {
 	alignas(16) glm::mat4 model;
 	alignas(16) glm::mat4 view;
 	alignas(16) glm::mat4 proj;
+	alignas(16) float time;
 };
