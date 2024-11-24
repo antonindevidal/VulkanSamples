@@ -80,8 +80,8 @@ private:
 	VkSampler createTextureSampler();
 	void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
 	VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
-	void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
-	void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+	void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t layerCount = 1u);
+	void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layerCount = 1u);
 
 	void startRecording(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 	void endRecording(VkCommandBuffer commandBuffer);
@@ -109,7 +109,7 @@ private:
 
 public:
 	// Graphics pipeline
-	GraphicsPipeline createGraphicsPipeline(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, std::vector<VkDescriptorSetLayout> descriptorSetLayouts);
+	GraphicsPipeline createGraphicsPipeline(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, std::vector<VkDescriptorSetLayout> descriptorSetLayouts, bool depthEnable = true);
 	void destroyGraphicsPipeline(GraphicsPipeline graphicsPipeline);
 	void bindGraphicsPipeline(GraphicsPipeline graphicsPipeline);
 
@@ -149,6 +149,8 @@ public:
 	Texture createTexture(const std::string& image);
 	void destroyTexture(Texture texture);
 
+	Texture createCubeMap(const std::vector<std::string>& imatges);
+
 	// Descriptors
 	
 	DescriptorPool createDescriptorPool(std::vector<std::pair<VkDescriptorType,uint32_t>> infos, uint32_t maxSets);
@@ -157,6 +159,7 @@ public:
 	DescriptorSetLayout createDescriptorSetlayout(Texture t);
 	DescriptorSetLayout createDescriptorSetLayoutBuffer(uint32_t bindingIndex = 0);
 	DescriptorSetLayout createDescriptorSetLayoutGrass();
+	DescriptorSetLayout createDescriptorSetLayoutSkybox();
 	DescriptorSetLayout createDescriptorSetLayoutGrassCompute();
 
 	void destroyDescriptorSetLayout(DescriptorSetLayout layout);
@@ -164,6 +167,7 @@ public:
 	DescriptorSet createDescriptorSet(DescriptorSetLayout layout, DescriptorPool pool, Texture t);
 	DescriptorSet createDescriptorSet(DescriptorSetLayout layout, DescriptorPool pool, UniformBuffer ub);
 	DescriptorSet createDescriptorSetGrass(DescriptorSetLayout layout, DescriptorPool pool, ShaderStorageBufferObject ssbo, Texture texture);
+	DescriptorSet createDescriptorSetSkybox(DescriptorSetLayout layout, DescriptorPool pool, Texture cubemap);
 	DescriptorSet createDescriptorSetGrassCompute(DescriptorSetLayout layout, DescriptorPool pool, ShaderStorageBufferObject ssbo);
 
 	void destroyDescriptorSet(DescriptorSet descriptorSet);

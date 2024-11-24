@@ -80,9 +80,11 @@ int main() {
     renderer.createRenderer(window);
 
     Mesh meshGround = renderer.createMesh(verticesGround, indicesGround);
+    Mesh meshSkybox = renderer.createMesh(verticesSkybox, indicesSkybox);
     Mesh meshGrass= renderer.createMesh("Models/grass2.obj");
 
     Texture texture = renderer.createTexture("Textures/grass.png");
+    Texture textureSkybox = renderer.createCubeMap({ "Textures/skybox/nx.png","Textures/skybox/px.png","Textures/skybox/py.png","Textures/skybox/ny.png","Textures/skybox/nz.png","Textures/skybox/pz.png" });
     
     UniformBuffer uniforms = renderer.createUniformBuffer<UniformBufferObject>();
     //ShaderStorageBufferObject ssboGrass = renderer.createShaderStorageBuffer(grassData);
@@ -91,20 +93,23 @@ int main() {
     renderer.updateSSBO<glm::vec4>(ssboGrass, glm::vec4{-10,-10,20,NB_BLADES});
 
 
-    DescriptorPool pool = renderer.createDescriptorPool({ {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,1},{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,2}, {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 2 } }, 10);
+    DescriptorPool pool = renderer.createDescriptorPool({ {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,1},{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,5}, {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 2 } }, 20);
 
     DescriptorSetLayout layoutUb = renderer.createDescriptorSetLayoutBuffer();
     DescriptorSetLayout layoutText = renderer.createDescriptorSetlayout(texture);
     DescriptorSetLayout layoutGrassSSBO = renderer.createDescriptorSetLayoutGrass();
+    DescriptorSetLayout layoutSkybox = renderer.createDescriptorSetLayoutSkybox();
     DescriptorSetLayout layoutGrassSSBOCompute = renderer.createDescriptorSetLayoutGrassCompute();
 
     DescriptorSet descriptorSetUb = renderer.createDescriptorSet(layoutUb, pool, uniforms);
     DescriptorSet descriptorSetText = renderer.createDescriptorSet(layoutText, pool, texture);
     DescriptorSet descriptorSetGrass = renderer.createDescriptorSetGrass(layoutGrassSSBO, pool, ssboGrass, texture);
+    DescriptorSet descriptorSetSkybox= renderer.createDescriptorSetSkybox(layoutSkybox, pool, textureSkybox);
     DescriptorSet descriptorSetGrassCompute = renderer.createDescriptorSetGrassCompute(layoutGrassSSBOCompute, pool, ssboGrass);
 
     GraphicsPipeline pipeline = renderer.createGraphicsPipeline("Shaders/vert.spv","Shaders/colorfrag.spv", { layoutUb,layoutText });
     GraphicsPipeline pipelineGrass = renderer.createGraphicsPipeline("Shaders/grassvert.spv","Shaders/frag.spv", { layoutUb, layoutGrassSSBO });
+    GraphicsPipeline pipelineSkybox = renderer.createGraphicsPipeline("Shaders/skyboxvert.spv","Shaders/skyboxfrag.spv", { layoutUb, layoutSkybox }, false);
 
     ComputePipeline pipelineGrassGen = renderer.createComputePipeline("Shaders/grassGenComp.spv", { layoutGrassSSBOCompute });
 
@@ -133,6 +138,12 @@ int main() {
         // Draw
         renderer.startFrame();
 
+
+        renderer.bindGraphicsPipeline(pipelineSkybox);
+        renderer.bindDescriptorSet(descriptorSetUb);
+        renderer.bindDescriptorSet(descriptorSetSkybox, 1);
+        renderer.drawMesh(meshSkybox);
+
         renderer.bindGraphicsPipeline(pipeline);
         renderer.bindDescriptorSet(descriptorSetUb);
         renderer.bindDescriptorSet(descriptorSetText,1);
@@ -144,7 +155,6 @@ int main() {
         renderer.drawMesh(meshGrass, NB_BLADES);
 
 
-
         renderer.endFrame();
     }
     renderer.waitDeviceIdle();
@@ -153,16 +163,20 @@ int main() {
     renderer.destroyDescriptorSetLayout(layoutText);
     renderer.destroyDescriptorSetLayout(layoutUb);
     renderer.destroyDescriptorSetLayout(layoutGrassSSBO);
+    renderer.destroyDescriptorSetLayout(layoutSkybox);
     renderer.destroyDescriptorSetLayout(layoutGrassSSBOCompute);
 
     renderer.destroyComputePipeline(pipelineGrassGen);
     renderer.destroyGraphicsPipeline(pipeline);
     renderer.destroyGraphicsPipeline(pipelineGrass);
+    renderer.destroyGraphicsPipeline(pipelineSkybox);
 
     renderer.destroyUniformBuffer(uniforms);
     renderer.destroyShaderStorageBufferObject(ssboGrass);
     renderer.destroyTexture(texture);
+    renderer.destroyTexture(textureSkybox);
     renderer.destroyMesh(meshGround);
+    renderer.destroyMesh(meshSkybox);
     renderer.destroyMesh(meshGrass);
 
     renderer.destroy();
