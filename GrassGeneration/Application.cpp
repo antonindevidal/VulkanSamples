@@ -87,10 +87,9 @@ int main() {
     Texture textureSkybox = renderer.createCubeMap({ "Textures/skybox/nx.png","Textures/skybox/px.png","Textures/skybox/py.png","Textures/skybox/ny.png","Textures/skybox/nz.png","Textures/skybox/pz.png" });
     
     UniformBuffer uniforms = renderer.createUniformBuffer<UniformBufferObject>();
-    //ShaderStorageBufferObject ssboGrass = renderer.createShaderStorageBuffer(grassData);
     ShaderStorageBufferObject ssboGrass = renderer.createShaderStorageBuffer(sizeof(GrassBladeData));
     std::cout << sizeof(glm::vec4)<< ' ' << sizeof(GrassBladeData) << std::endl;
-    renderer.updateSSBO<glm::vec4>(ssboGrass, glm::vec4{-10,-10,20,NB_BLADES});
+    renderer.updateSSBO<std::array<glm::vec4,2>>(ssboGrass, { glm::vec4{-10,-10,20,NB_BLADES} , glm::vec4(glm::normalize(glm::vec3{cos(45.0),0.0,sin(45.0)}),1.0) });
 
 
     DescriptorPool pool = renderer.createDescriptorPool({ {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,1},{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,5}, {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 2 } }, 20);
@@ -108,7 +107,7 @@ int main() {
     DescriptorSet descriptorSetGrassCompute = renderer.createDescriptorSetGrassCompute(layoutGrassSSBOCompute, pool, ssboGrass);
 
     GraphicsPipeline pipeline = renderer.createGraphicsPipeline("Shaders/vert.spv","Shaders/colorfrag.spv", { layoutUb,layoutText });
-    GraphicsPipeline pipelineGrass = renderer.createGraphicsPipeline("Shaders/grassvert.spv","Shaders/frag.spv", { layoutUb, layoutGrassSSBO });
+    GraphicsPipeline pipelineGrass = renderer.createGraphicsPipeline("Shaders/grassvert.spv","Shaders/grassfrag.spv", { layoutUb, layoutGrassSSBO });
     GraphicsPipeline pipelineSkybox = renderer.createGraphicsPipeline("Shaders/skyboxvert.spv","Shaders/skyboxfrag.spv", { layoutUb, layoutSkybox }, false);
 
     ComputePipeline pipelineGrassGen = renderer.createComputePipeline("Shaders/grassGenComp.spv", { layoutGrassSSBOCompute });
@@ -138,22 +137,21 @@ int main() {
         // Draw
         renderer.startFrame();
 
-
         renderer.bindGraphicsPipeline(pipelineSkybox);
         renderer.bindDescriptorSet(descriptorSetUb);
         renderer.bindDescriptorSet(descriptorSetSkybox, 1);
         renderer.drawMesh(meshSkybox);
-
+        
         renderer.bindGraphicsPipeline(pipeline);
         renderer.bindDescriptorSet(descriptorSetUb);
         renderer.bindDescriptorSet(descriptorSetText,1);
         renderer.drawMesh(meshGround);
-
+        
         renderer.bindGraphicsPipeline(pipelineGrass);
         renderer.bindDescriptorSet(descriptorSetUb);
         renderer.bindDescriptorSet(descriptorSetGrass, 1);
         renderer.drawMesh(meshGrass, NB_BLADES);
-
+        
 
         renderer.endFrame();
     }
