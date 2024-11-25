@@ -13,13 +13,15 @@
 #include "Buffer.hpp"
 #include "Mesh.hpp"
 
-UniformBufferObject createUniformBuffer(int width, int height, float totalTime, glm::mat4 view)
+UniformBufferObject createUniformBuffer(int width, int height, float totalTime, Camera& cam)
 {
     UniformBufferObject ubo{};
     ubo.model = glm::rotate(glm::mat4(1.0f),glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    ubo.view = view;//glm::lookAt(camPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    ubo.view = cam.view;
     ubo.proj = glm::perspective(glm::radians(45.0f), width / (float)height, 0.1f, 1000.0f);
     ubo.proj[1][1] *= -1;
+    ubo.directionnalLight = glm::vec4(glm::normalize(glm::vec3{ -cos(45.0),0.0,-sin(45.0) }), 1.0);
+    ubo.cameraFront = cam.front;
     ubo.time = totalTime;
     return ubo;
 }
@@ -89,7 +91,7 @@ int main() {
     UniformBuffer uniforms = renderer.createUniformBuffer<UniformBufferObject>();
     ShaderStorageBufferObject ssboGrass = renderer.createShaderStorageBuffer(sizeof(GrassBladeData));
     std::cout << sizeof(glm::vec4)<< ' ' << sizeof(GrassBladeData) << std::endl;
-    renderer.updateSSBO<std::array<glm::vec4,2>>(ssboGrass, { glm::vec4{-10,-10,20,NB_BLADES} , glm::vec4(glm::normalize(glm::vec3{cos(45.0),0.0,sin(45.0)}),1.0) });
+    renderer.updateSSBO<glm::vec4>(ssboGrass, glm::vec4{ -10,-10,20,NB_BLADES });
 
 
     DescriptorPool pool = renderer.createDescriptorPool({ {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,1},{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,5}, {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 2 } }, 20);
@@ -131,7 +133,7 @@ int main() {
         lastFrameTime = currentTime;
 
         moveCamera(camera,window,deltaTime);
-        auto matrices = createUniformBuffer(renderer.getSwapchainWidth(), renderer.getSwapchainHeight(), time, camera.view);
+        auto matrices = createUniformBuffer(renderer.getSwapchainWidth(), renderer.getSwapchainHeight(), time, camera);
         renderer.updateUniformBuffer<UniformBufferObject>(uniforms, matrices);
 
         // Draw
@@ -140,7 +142,7 @@ int main() {
         renderer.bindGraphicsPipeline(pipelineSkybox);
         renderer.bindDescriptorSet(descriptorSetUb);
         renderer.bindDescriptorSet(descriptorSetSkybox, 1);
-        renderer.drawMesh(meshSkybox);
+        //renderer.drawMesh(meshSkybox);
         
         renderer.bindGraphicsPipeline(pipeline);
         renderer.bindDescriptorSet(descriptorSetUb);
@@ -150,7 +152,7 @@ int main() {
         renderer.bindGraphicsPipeline(pipelineGrass);
         renderer.bindDescriptorSet(descriptorSetUb);
         renderer.bindDescriptorSet(descriptorSetGrass, 1);
-        renderer.drawMesh(meshGrass, NB_BLADES);
+        //renderer.drawMesh(meshGrass, NB_BLADES);
         
 
         renderer.endFrame();

@@ -10,13 +10,13 @@ layout(binding = 0) uniform UniformBufferObject {
     mat4 model;
     mat4 view;
     mat4 proj;
+    vec4 dirLight;
     float time;
 } ubo;
 
 
 layout(std140, binding = 0, set = 1) readonly buffer GrassBladeSSBOIn {
     vec4 data;
-    vec4 directionnalLight;
     GrassBlade grassBlade[ ];
 };
 

@@ -27,15 +27,14 @@ struct GrassBlade {
 };
 struct GrassBladeData {
 	glm::vec4 data; // x, y, width, nbBlades
-	glm::vec4 directionalLight;
 	std::array<GrassBlade, NB_BLADES> positions;
 };
 
 const std::vector<Vertex> verticesGround = {
-	{{ -10.0f, -10.0f, 0.0f},	{0.0f, 0.0f, 1.0f},	{1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}},
-	{{10.0f, -10.0f, 0.0f},		{0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
-	{{10.0f, 10.0f, 0.0f},		{0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
-	{{-10.0f, 10.0f, 0.0f},		{0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
+	{{ -10.0f, -10.0f, 0.0f},	{0.0f, 0.0f, 1.0f},	{0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+	{{10.0f, -10.0f, 0.0f},		{0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+	{{10.0f, 10.0f, 0.0f},		{0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}},
+	{{-10.0f, 10.0f, 0.0f},		{0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}}
 };
 
 const std::vector<uint16_t> indicesGround = {
@@ -94,5 +93,7 @@ struct UniformBufferObject {
 	alignas(16) glm::mat4 model;
 	alignas(16) glm::mat4 view;
 	alignas(16) glm::mat4 proj;
+	alignas(16) glm::vec4 directionnalLight;
+	alignas(16) glm::vec3 cameraFront;
 	alignas(16) float time;
 };

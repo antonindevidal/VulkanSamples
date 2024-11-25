@@ -9,7 +9,6 @@ struct GrassBlade
 
 layout(std140, binding = 0, set = 0) buffer GrassBladeSSBOIn {
     vec4 data;
-    vec4 directionnalLight;
     GrassBlade grassBlade[ ];
 };
 
