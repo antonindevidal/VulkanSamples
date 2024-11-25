@@ -142,7 +142,7 @@ int main() {
         renderer.bindGraphicsPipeline(pipelineSkybox);
         renderer.bindDescriptorSet(descriptorSetUb);
         renderer.bindDescriptorSet(descriptorSetSkybox, 1);
-        //renderer.drawMesh(meshSkybox);
+        renderer.drawMesh(meshSkybox);
         
         renderer.bindGraphicsPipeline(pipeline);
         renderer.bindDescriptorSet(descriptorSetUb);
@@ -152,7 +152,7 @@ int main() {
         renderer.bindGraphicsPipeline(pipelineGrass);
         renderer.bindDescriptorSet(descriptorSetUb);
         renderer.bindDescriptorSet(descriptorSetGrass, 1);
-        //renderer.drawMesh(meshGrass, NB_BLADES);
+        renderer.drawMesh(meshGrass, NB_BLADES);
         
 
         renderer.endFrame();

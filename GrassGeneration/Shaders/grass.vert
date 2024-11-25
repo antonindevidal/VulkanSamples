@@ -11,6 +11,7 @@ layout(binding = 0) uniform UniformBufferObject {
     mat4 view;
     mat4 proj;
     vec4 dirLight;
+    vec3 cameraFront;
     float time;
 } ubo;
 
@@ -34,14 +35,19 @@ void main() {
     float bladeInitialRotation= grassBlade[gl_InstanceIndex].position.w;
 
     vec3 bladePos = vec3(inPosition.x, inPosition.y, inPosition.z);
-    vec3 bladeOffset = vec3(grassBlade[gl_InstanceIndex].position.x, grassBlade[gl_InstanceIndex].position.y, grassBlade[gl_InstanceIndex].position.z + bladePos.z * heightFactor);
+    vec3 bladeOffset = vec3(grassBlade[gl_InstanceIndex].position.x, grassBlade[gl_InstanceIndex].position.y, grassBlade[gl_InstanceIndex].position.z + bladePos.z +(bladePos.z* heightFactor));
     
 
 
-    float curvFactor = 0.5 * bladePos.z * heightFactor ;
-    mat3 curvature = mat3(cos(curvFactor), 0, -sin(curvFactor),
-                          0              , 1, 0,
-                          sin(curvFactor), 0, cos(curvFactor)
+    float curvFactor = 0.9* bladePos.z  ;
+    mat3 curvature = mat3(1 , 0,             0,
+                          0, cos(curvFactor), -sin(curvFactor),
+                          0, sin(curvFactor), cos(curvFactor)
+                    );
+
+    mat3 curvatureNormal = mat3(cos(curvFactor),0 , -sin(curvFactor),
+                                0,              1 , 0,
+                                sin(curvFactor),0 , cos(curvFactor)
                     );
 
     mat3 rotation = mat3( cos(bladeInitialRotation), -sin(bladeInitialRotation), 0,
@@ -50,10 +56,11 @@ void main() {
                     );
 
     vec3 bladePosWindEffect = rotation * curvature * bladePos;
+    vec3 bladeNormWindEffect =  rotation * curvatureNormal * inNormal;
 
     gl_Position = ubo.proj * ubo.view * ubo.model * vec4(bladePosWindEffect + bladeOffset,1.0f);
 
     fragColor = inColor;    
-    fragNormal = inNormal;
+    fragNormal = bladeNormWindEffect;
     fragTexCoord = inTexCoord;
 }

@@ -41,7 +41,7 @@ void main()
 
     float noise = float(lowbias32(index))/ float(0xffffffffU);
 
-    float heightFactor = (noise * 0.4) + 0.8; // Height factor between 0.8 and 1.2
+    float heightFactor = (noise * 0.8) -0.4; // Height factor between -0.4 and +0.4
 
     grassBlade[index].position = vec4(x + noise ,y + noise, 0.0f, noise * 6.28);
     grassBlade[index].data = vec4(heightFactor, 0.0, 0.0, 0.0);
