@@ -7,7 +7,7 @@
 #include "Helpers.hpp"
 #include "vulkan/vulkan.h"
 #include "Window.hpp"
-#include "Vertex.hpp"
+#include "VkStructs.hpp"
 
 class Device
 {

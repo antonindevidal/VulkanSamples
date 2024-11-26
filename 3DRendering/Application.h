@@ -1,7 +1,7 @@
 #pragma once
 
 #include "pch.h"
-#include "Vertex.hpp"
+#include "VkStructs.hpp"
 
 std::string windowName = "Vulkan triangle";
 

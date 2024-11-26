@@ -1,6 +1,70 @@
 #pragma once
 #include "pch.h"
 
+struct Buffer
+{
+	VkBuffer _buffer;
+	VkDeviceMemory _bufferMemory;
+};
+
+struct UniformBuffer
+{
+	std::vector<VkBuffer> _buffers;
+	std::vector<VkDeviceMemory> _buffersMemory;
+	std::vector<void*> _buffersMapped;
+	uint32_t _size;
+
+	VkDescriptorBufferInfo descriptorInfo(int index)
+	{
+		VkDescriptorBufferInfo bufferInfo{};
+		bufferInfo.buffer = _buffers[index];
+		bufferInfo.offset = 0;
+		bufferInfo.range = _size;
+		return bufferInfo;
+	}
+};
+
+struct Mesh
+{
+	Buffer _vertexBuffer;
+	Buffer _indexBuffer;
+
+	uint32_t _nbVertices;
+	uint32_t _nbIndices;
+};
+
+struct Texture
+{
+	VkImage _textureImage;
+	VkDeviceMemory _textureImageMemory;
+	VkImageView _textureImageView;
+	VkSampler _textureSampler;
+
+	VkDescriptorImageInfo descriptorInfo()
+	{
+		VkDescriptorImageInfo imageInfo{};
+		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		imageInfo.imageView = _textureImageView;
+		imageInfo.sampler = _textureSampler;
+		return imageInfo;
+	}
+};
+
+using DescriptorPool = VkDescriptorPool;
+using DescriptorSetLayout = VkDescriptorSetLayout;
+
+struct DescriptorSet
+{
+	VkDescriptorSetLayout _descriptorSetLayout;
+	std::vector<VkDescriptorSet> _descriptorSets;
+};
+
+struct GraphicsPipeline
+{
+	VkPipelineLayout _pipelineLayout;
+	VkPipeline _graphicsPipeline;
+};
+
 using index_t = uint16_t;
 
 struct Vertex {

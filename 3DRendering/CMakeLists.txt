@@ -4,15 +4,10 @@ set(3DRendering_SRC
     Application.cpp
     Window.cpp
     Device.cpp
-    Buffer.cpp
-    Vertex.cpp
-    Mesh.cpp
     Renderer.cpp
     Helpers.cpp
-    Texture.cpp
-    DescriptorSet.cpp
     Instance.cpp
-    GraphicsPipeline.cpp
+    VkStructs.cpp
 )
 
 set(3DRendering_HDR
@@ -20,15 +15,10 @@ set(3DRendering_HDR
     Window.hpp
     pch.h
     Device.hpp
-    Buffer.hpp
-    Vertex.hpp
-    Mesh.hpp
     Renderer.hpp
     Helpers.cpp
-    Texture.hpp
-    DescriptorSet.hpp
     Instance.hpp
-    GraphicsPipeline.hpp
+    VkStructs.hpp
 )
 
 add_custom_target(copy_resources ALL 
