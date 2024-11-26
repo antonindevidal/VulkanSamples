@@ -40,11 +40,16 @@ void main()
     float x = data.x + (index%sq)*(data.z/sq);
     float y = data.y + (index/sq)*(data.z/sq);
 
-    float noise = float(lowbias32(index))/ float(0xffffffffU);
+    float noisePos = float(lowbias32(index))/ float(0xffffffffU);
+    float noiseHeight = float(lowbias32(index<<1))/ float(0xffffffffU);
+    float noiseRotation = float(lowbias32(index<<2))/ float(0xffffffffU);
+    float noiseStiffness = float(lowbias32(index<<3))/ float(0xffffffffU);
 
-    float heightFactor = (noise * 0.8) -0.4; // Height factor between -0.4 and +0.4
-    float rotationFactor= (noise * 1.8) -0.9 + windDir.x; 
+    float posOffset = (noisePos * 0.5) - 0.25;
+    float heightFactor = (noiseHeight * 0.8) -0.4;
+    float rotationFactor= (noiseRotation * 1.8) -0.9 + windDir.x; 
+    float stiffness= (noiseStiffness * 0.6) + 0.4; 
 
-    grassBlade[index].position = vec4(x + noise ,y + noise, 0.0f, rotationFactor);
+    grassBlade[index].position = vec4(x + noisePos ,y + noisePos, 0.0f, rotationFactor);
     grassBlade[index].data = vec4(heightFactor, 1.0, 0.0, 0.0);
 }
