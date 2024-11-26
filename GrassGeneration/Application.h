@@ -5,7 +5,17 @@
 
 std::string windowName = "Vulkan Grass Generation";
 
+// Grass parameters
 static const uint32_t NB_BLADES = 10000;
+static const float GRASS_FIELD_POS_X = -10;
+static const float GRASS_FIELD_POS_Y = -10;
+static const float GRASS_FIELD_SIZE = 20;
+static const float WIND_DIRECTION = 0.0; // Radians
+static const float WIND_POWER = 0.9;
+static const float WIND_FREQU = 800;
+static const float WIND_AMPL = 100;
+
+// Camera parameters
 static const float CAMERA_SPEED= 5;
 static const float CAMERA_SENSITIVITY= 0.1;
 
@@ -27,7 +37,7 @@ struct GrassBlade {
 };
 struct GrassBladeData {
 	glm::vec4 data; // x, y, width, nbBlades
-	glm::vec4 windDir; // theta, ...
+	glm::vec4 wind; // wind, windPower, windFrequ, windAmpl
 	std::array<GrassBlade, NB_BLADES> positions;
 };
 

@@ -93,8 +93,8 @@ int main() {
     std::cout << sizeof(glm::vec4) << ' ' << sizeof(GrassBladeData) << std::endl;
 
     std::array<glm::vec4, 2> grassData;
-    grassData[0] = { -10.0, -10.0, 20.0, NB_BLADES };
-    grassData[1] = { 0.0, 0.0, 0.0, 0.0 };
+    grassData[0] = { GRASS_FIELD_POS_X, GRASS_FIELD_POS_Y, GRASS_FIELD_SIZE, NB_BLADES };
+    grassData[1] = { WIND_DIRECTION, WIND_POWER, WIND_FREQU, WIND_AMPL };
 
     renderer.updateSSBO<std::array<glm::vec4, 2>>(ssboGrass, grassData,0);
 

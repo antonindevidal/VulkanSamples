@@ -18,7 +18,7 @@ layout(std140,binding = 0) uniform UniformBufferObject {
 
 layout(std140, binding = 0, set = 1) readonly buffer GrassBladeSSBOIn {
     vec4 data;
-    vec4 windDir;
+    vec4 wind;
     GrassBlade grassBlade[ ];
 };
 
@@ -35,7 +35,7 @@ layout(location = 2) out vec2 fragTexCoord;
 float PI = 3.14;
 
 
-// Might move that to its own compute shader that run every frame
+// Might move that to its own compute shader that runs every frame
 //Perlin noise from https://gist.github.com/patriciogonzalezvivo/670c22f3966e662d2f83
 float rand(vec2 c){
 	return fract(sin(dot(c.xy ,vec2(12.9898,78.233))) * 43758.5453);
@@ -81,14 +81,18 @@ void main() {
     float stiffness = grassBlade[gl_InstanceIndex].data.y;
     float bladeInitialRotation= grassBlade[gl_InstanceIndex].position.w;
 
+    float windPowerFactor = wind.y;
+    float windFrequ = wind.z;
+    float windAmpl = wind.w;
+
     vec3 bladePos = vec3(inPosition.x, inPosition.y , inPosition.z);
     vec3 bladeOffset = vec3(grassBlade[gl_InstanceIndex].position.x, grassBlade[gl_InstanceIndex].position.y, grassBlade[gl_InstanceIndex].position.z + bladePos.z +(bladePos.z* heightFactor));
     
-    float baseWindPower = pNoise(vec2(grassBlade[gl_InstanceIndex].position.x, grassBlade[gl_InstanceIndex].position.y)*100 - vec2(sin(windDir.x),cos(windDir.x)) * ubo.time * 800,1); // [0,1]
+    float baseWindPower = pNoise(vec2(grassBlade[gl_InstanceIndex].position.x, grassBlade[gl_InstanceIndex].position.y) * windAmpl - vec2(sin(windDir.x),cos(windDir.x)) * ubo.time * windFrequ,1); // [0,1]
     float windPower = baseWindPower * stiffness;
 
 
-    float curvFactor = (0.9 + windPower) * bladePos.z;
+    float curvFactor = (windPowerFactor + windPower) * bladePos.z;
     mat3 curvature = mat3(1 , 0,             0,
                           0, cos(curvFactor), -sin(curvFactor),
                           0, sin(curvFactor), cos(curvFactor)
