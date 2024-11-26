@@ -1,0 +1,55 @@
+#version 450
+
+
+struct GrassBlade
+{
+    vec4 position;
+    vec4 data;
+};
+
+layout(std140, binding = 0, set = 0) buffer GrassBladeSSBOIn {
+    vec4 data; //x, y, z, Zrotation
+    vec4 windDir; //theta (radian), 
+    GrassBlade grassBlade[ ]; // heightFactor, stiffness
+};
+
+
+
+float rand(vec2 c){
+	return fract(sin(dot(c.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+
+uint lowbias32(uint x)
+{
+    x ^= x >> 16;
+    x *= 0x7feb352dU;
+    x ^= x >> 15;
+    x *= 0x846ca68bU;
+    x ^= x >> 16;
+    return x;
+}
+
+
+layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+void main() 
+{
+    uint index = gl_GlobalInvocationID.x;  
+    int sq = int(sqrt(data.w));
+
+    float x = data.x + (index%sq)*(data.z/sq);
+    float y = data.y + (index/sq)*(data.z/sq);
+
+    float noisePos = float(lowbias32(index))/ float(0xffffffffU);
+    float noiseHeight = float(lowbias32(index<<1))/ float(0xffffffffU);
+    float noiseRotation = float(lowbias32(index<<2))/ float(0xffffffffU);
+    float noiseStiffness = float(lowbias32(index<<3))/ float(0xffffffffU);
+
+    float posOffset = (noisePos * 0.5) - 0.25;
+    float heightFactor = (noiseHeight * 0.8) -0.4;
+    float rotationFactor= (noiseRotation * 1.8) -0.9 + windDir.x; 
+    float stiffness= (noiseStiffness * 0.6) + 0.4; 
+
+    grassBlade[index].position = vec4(x + noisePos ,y + noisePos, 0.0f, rotationFactor);
+    grassBlade[index].data = vec4(heightFactor, 1.0, 0.0, 0.0);
+}
