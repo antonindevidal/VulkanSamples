@@ -1,12 +1,8 @@
 #pragma once
 #include "pch.h"
+#include "VkStructs.hpp"
 #include "Device.hpp"
-#include "Mesh.hpp"
-#include "Buffer.hpp"
-#include "Texture.hpp"
-#include "DescriptorSet.hpp"
 #include "Instance.hpp"
-#include "GraphicsPipeline.hpp"
 
 class Renderer
 {
