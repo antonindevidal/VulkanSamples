@@ -1,6 +1,20 @@
 # Vulkan Samples
 
-These projects were only tested on 1 hardware. If you want to compile the projects, you will need to run the [compile.bat](https://github.com/antonindevidal/VulkanSamples/blob/main/3DRendering/Shaders/compile.bat) file first in order to compile the shaders. This requires to modify the [compile.bat](https://github.com/antonindevidal/VulkanSamples/blob/main/3DRendering/Shaders/compile.bat) file and change the glslc program filepath and output path for the SpirV files.
+## Technologies 
+- C++ 20
+- Vulkan 1.3.296
+- GLFW
+- CMake
+
+**This project requires the Vulkan SDK to be installed in order to compile and run it.**
+
+
+In order to compile the project, a few steps are required : 
+- Run the project one time to create the build folders.
+- Run the compile.bat file in the Shader folder of each project to create SpirV code.
+You may need to modify this script in order to change the Vulkan SDK folder and compiler output.
+- Compiling the project should work.
+
 
 ## [Grass Generation](https://github.com/antonindevidal/VulkanSamples/tree/main/GrassGeneration)
 
@@ -20,7 +34,7 @@ This project showcases a scene with foliage rendering and real time wind simulat
 - Wind direction, power, amplitude, frequency
 
 
-![3D rendering](https://github.com/antonindevidal/VulkanSamples/blob/main/Documentation/GrassGeneration.png)
+![Grass Generation](/Documentation/GrassGeneration.png)
 
 ## [3D Rendering](https://github.com/antonindevidal/VulkanSamples/tree/main/3DRendering)
 
@@ -31,4 +45,4 @@ This project shows a simple 3D scene in Vulkan. It implements a basic rendering 
 - Supports multiple graphics pipelines
 - Supports multiple meshes and associated descriptor sets
  
-![3D rendering](https://github.com/antonindevidal/VulkanSamples/blob/main/Documentation/3DRenderingProject.png)
+![3D rendering](/Documentation/3DRenderingProject.png)

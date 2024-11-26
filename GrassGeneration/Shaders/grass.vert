@@ -81,6 +81,7 @@ void main() {
     float stiffness = grassBlade[gl_InstanceIndex].data.y;
     float bladeInitialRotation= grassBlade[gl_InstanceIndex].position.w;
 
+    float windDir= wind.x;
     float windPowerFactor = wind.y;
     float windFrequ = wind.z;
     float windAmpl = wind.w;
@@ -88,7 +89,7 @@ void main() {
     vec3 bladePos = vec3(inPosition.x, inPosition.y , inPosition.z);
     vec3 bladeOffset = vec3(grassBlade[gl_InstanceIndex].position.x, grassBlade[gl_InstanceIndex].position.y, grassBlade[gl_InstanceIndex].position.z + bladePos.z +(bladePos.z* heightFactor));
     
-    float baseWindPower = pNoise(vec2(grassBlade[gl_InstanceIndex].position.x, grassBlade[gl_InstanceIndex].position.y) * windAmpl - vec2(sin(windDir.x),cos(windDir.x)) * ubo.time * windFrequ,1); // [0,1]
+    float baseWindPower = pNoise(vec2(grassBlade[gl_InstanceIndex].position.x, grassBlade[gl_InstanceIndex].position.y) * windAmpl - vec2(sin(windDir),cos(windDir)) * ubo.time * windFrequ,1); // [0,1]
     float windPower = baseWindPower * stiffness;
 
 
