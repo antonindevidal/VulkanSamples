@@ -16,7 +16,7 @@ You may need to modify this script in order to change the Vulkan SDK folder and 
 - Compiling the project should work.
 
 
-## [Grass Generation](https://github.com/antonindevidal/VulkanSamples/tree/main/GrassGeneration)
+## [Grass Generation](/GrassGeneration)
 
 This project showcases a scene with foliage rendering and real time wind simulation.
 
@@ -36,7 +36,7 @@ This project showcases a scene with foliage rendering and real time wind simulat
 
 ![Grass Generation](/Documentation/GrassGeneration.png)
 
-## [3D Rendering](https://github.com/antonindevidal/VulkanSamples/tree/main/3DRendering)
+## [3D Rendering](/3DRendering)
 
 This project shows a simple 3D scene in Vulkan. It implements a basic rendering system with an abstraction level for the Vulkan API. 
 
