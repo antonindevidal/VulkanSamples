@@ -8,8 +8,9 @@ struct GrassBlade
 };
 
 layout(std140, binding = 0, set = 0) buffer GrassBladeSSBOIn {
-    vec4 data;
-    GrassBlade grassBlade[ ];
+    vec4 data; //x, y, z, Zrotation
+    vec4 windDir; //theta (radian), 
+    GrassBlade grassBlade[ ]; // heightFactor, stiffness
 };
 
 
@@ -42,7 +43,8 @@ void main()
     float noise = float(lowbias32(index))/ float(0xffffffffU);
 
     float heightFactor = (noise * 0.8) -0.4; // Height factor between -0.4 and +0.4
+    float rotationFactor= (noise * 1.8) -0.9 + windDir.x; 
 
-    grassBlade[index].position = vec4(x + noise ,y + noise, 0.0f, noise * 6.28);
-    grassBlade[index].data = vec4(heightFactor, 0.0, 0.0, 0.0);
+    grassBlade[index].position = vec4(x + noise ,y + noise, 0.0f, rotationFactor);
+    grassBlade[index].data = vec4(heightFactor, 1.0, 0.0, 0.0);
 }

@@ -23,10 +23,11 @@ struct Camera
 
 struct GrassBlade {
 	glm::vec4 position; //x, y, z, Zrotation
-	glm::vec4 data; // heightFactor, stiffness
+	glm::vec4 data; // heightFactor, stiffness[0,inf] ( 0 = stiff)
 };
 struct GrassBladeData {
 	glm::vec4 data; // x, y, width, nbBlades
+	glm::vec4 windDir; // theta, ...
 	std::array<GrassBlade, NB_BLADES> positions;
 };
 
@@ -94,6 +95,6 @@ struct UniformBufferObject {
 	alignas(16) glm::mat4 view;
 	alignas(16) glm::mat4 proj;
 	alignas(16) glm::vec4 directionnalLight;
-	alignas(16) glm::vec3 cameraFront;
+	alignas(16) glm::vec4 cameraFront;
 	alignas(16) float time;
 };

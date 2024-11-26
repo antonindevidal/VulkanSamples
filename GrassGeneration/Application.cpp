@@ -20,8 +20,8 @@ UniformBufferObject createUniformBuffer(int width, int height, float totalTime, 
     ubo.view = cam.view;
     ubo.proj = glm::perspective(glm::radians(45.0f), width / (float)height, 0.1f, 1000.0f);
     ubo.proj[1][1] *= -1;
-    ubo.directionnalLight = glm::vec4(glm::normalize(glm::vec3{ -cos(45.0),0.0,-sin(45.0) }), 1.0);
-    ubo.cameraFront = cam.front;
+    ubo.directionnalLight = glm::vec4(glm::normalize(glm::vec3{ cos(45.0),0.0,-sin(45.0) }), 1.0);
+    ubo.cameraFront = glm::vec4(cam.front,1.0);
     ubo.time = totalTime;
     return ubo;
 }
@@ -77,21 +77,26 @@ int main() {
     std::shared_ptr<Window> window = std::make_shared<Window>();
     window->Create(windowName);
 
-    
+
     Renderer renderer{};
     renderer.createRenderer(window);
 
     Mesh meshGround = renderer.createMesh(verticesGround, indicesGround);
     Mesh meshSkybox = renderer.createMesh(verticesSkybox, indicesSkybox);
-    Mesh meshGrass= renderer.createMesh("Models/grass2.obj");
+    Mesh meshGrass = renderer.createMesh("Models/grass2.obj");
 
     Texture texture = renderer.createTexture("Textures/grass.png");
     Texture textureSkybox = renderer.createCubeMap({ "Textures/skybox/nx.png","Textures/skybox/px.png","Textures/skybox/py.png","Textures/skybox/ny.png","Textures/skybox/nz.png","Textures/skybox/pz.png" });
-    
+
     UniformBuffer uniforms = renderer.createUniformBuffer<UniformBufferObject>();
     ShaderStorageBufferObject ssboGrass = renderer.createShaderStorageBuffer(sizeof(GrassBladeData));
-    std::cout << sizeof(glm::vec4)<< ' ' << sizeof(GrassBladeData) << std::endl;
-    renderer.updateSSBO<glm::vec4>(ssboGrass, glm::vec4{ -10,-10,20,NB_BLADES });
+    std::cout << sizeof(glm::vec4) << ' ' << sizeof(GrassBladeData) << std::endl;
+
+    std::array<glm::vec4, 2> grassData;
+    grassData[0] = { -10.0, -10.0, 20.0, NB_BLADES };
+    grassData[1] = { 0.0, 0.0, 0.0, 0.0 };
+
+    renderer.updateSSBO<std::array<glm::vec4, 2>>(ssboGrass, grassData,0);
 
 
     DescriptorPool pool = renderer.createDescriptorPool({ {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,1},{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,5}, {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 2 } }, 20);

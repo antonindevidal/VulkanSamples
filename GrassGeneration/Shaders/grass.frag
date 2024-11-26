@@ -9,20 +9,20 @@ layout(location = 0) out vec4 outColor;
 layout(set = 1, binding = 1) uniform sampler2D texSampler;
 
 
-layout(binding = 0) uniform UniformBufferObject {
+layout(std140,binding = 0) uniform UniformBufferObject {
     mat4 model;
     mat4 view;
     mat4 proj;
     vec4 dirLight;
-    vec3 cameraFront;
+    vec4 cameraFront;
     float time;
 } ubo;
 
 
 void main() {
     
-    vec3 halfwayVector = (vec3(ubo.dirLight) + ubo.cameraFront );
-    float light = clamp(pow(dot(halfwayVector, fragNormal),1), 0.0, 1.0);
+    vec3 halfwayVector = (vec3(ubo.dirLight) + vec3(ubo.cameraFront) );
+    float light = clamp(pow(dot(halfwayVector, fragNormal),5), 0.0, 1.0);
 
 
     outColor = texture(texSampler , fragTexCoord)* clamp(light +0.6,0.0,1.0);

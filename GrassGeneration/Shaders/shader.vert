@@ -1,11 +1,11 @@
 #version 450
 
-layout(binding = 0) uniform UniformBufferObject {
+layout(std140, binding = 0) uniform UniformBufferObject {
     mat4 model;
     mat4 view;
     mat4 proj;
     vec4 dirLight;
-    vec3 cameraFront;
+    vec4 cameraFront;
     float time;
 } ubo;
 
