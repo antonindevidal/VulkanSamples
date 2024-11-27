@@ -8,12 +8,7 @@
 
 **This project requires the Vulkan SDK to be installed in order to compile and run it.**
 
-
-In order to compile the project, a few steps are required : 
-- Run the project one time to create the build folders.
-- Run the compile.bat file in the Shader folder of each project to create SpirV code.
-You may need to modify this script in order to change the Vulkan SDK folder and compiler output.
-- Compiling the project should work.
+Compiling the project only works on Windows for now. To compile it, run the CMakeList.txt file for the desired project.
 
 
 ## [Grass Generation](/GrassGeneration)
