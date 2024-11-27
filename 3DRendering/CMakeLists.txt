@@ -39,10 +39,15 @@ add_dependencies(3DRendering copy_models)
 target_sources(3DRendering PRIVATE ${3DRendering_SRC})
 target_sources(3DRendering PUBLIC ${3DRendering_HDR})
 
+# Compiling shaders
+if(WIN32)
+    add_custom_target(3DRendering_compile_shaders
+                       COMMAND cmd /C ${CMAKE_SOURCE_DIR}/3DRendering/Shaders/compile.bat ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR})
+
+    add_dependencies(3DRendering 3DRendering_compile_shaders)
+endif()
 
 include_directories(${CMAKE_SOURCE_DIR}/Dependencies)
-
-
 
 find_package(Vulkan REQUIRED)
 target_link_libraries(3DRendering PUBLIC glfw glm Vulkan::Vulkan)

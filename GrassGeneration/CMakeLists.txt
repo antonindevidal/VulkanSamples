@@ -57,10 +57,15 @@ add_dependencies(GrassGeneration GrassGeneration_copy_models)
 target_sources(GrassGeneration PRIVATE ${GrassGeneration_SRC})
 target_sources(GrassGeneration PUBLIC ${GrassGeneration_HDR})
 
+# Compiling shaders
+if(WIN32)
+    add_custom_target(GrassGeneration_compile_shaders
+                       COMMAND cmd /C ${CMAKE_SOURCE_DIR}/GrassGeneration/Shaders/compile.bat ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR})
+
+    add_dependencies(GrassGeneration GrassGeneration_compile_shaders)
+endif()
 
 include_directories(${CMAKE_SOURCE_DIR}/Dependencies)
-
-
 
 find_package(Vulkan REQUIRED)
 target_link_libraries(GrassGeneration PUBLIC glfw glm Vulkan::Vulkan)

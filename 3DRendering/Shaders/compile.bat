@@ -1,10 +1,13 @@
-if not exist "..\..\out\build\x64-Debug\3DRendering\Shaders\" mkdir ..\..\out\build\x64-Debug\3DRendering\Shaders
+set sourceDir=%1\3DRendering\Shaders
+set outputDir=%2\3DRendering\Shaders
 
-C:\VulkanSDK\1.3.296.0\Bin\glslc shader.vert -o ..\..\out\build\x64-Debug\3DRendering\Shaders\vert.spv
-C:\VulkanSDK\1.3.296.0\Bin\glslc shader.frag -o ..\..\out\build\x64-Debug\3DRendering\Shaders\frag.spv
 
-C:\VulkanSDK\1.3.296.0\Bin\glslc color.frag -o ..\..\out\build\x64-Debug\3DRendering\Shaders\colorfrag.spv
+if not exist "%outputDir%" mkdir "%outputDir%"
 
+glslc %sourceDir%\shader.vert -o %outputDir%\vert.spv
+glslc %sourceDir%\shader.frag -o %outputDir%\frag.spv
+
+glslc %sourceDir%\color.frag -o %outputDir%\colorfrag.spv
 
 
 pause
