@@ -65,10 +65,7 @@ if(WIN32)
     add_dependencies(GrassGeneration GrassGeneration_compile_shaders)
 endif()
 
-
 include_directories(${CMAKE_SOURCE_DIR}/Dependencies)
-
-
 
 find_package(Vulkan REQUIRED)
 target_link_libraries(GrassGeneration PUBLIC glfw glm Vulkan::Vulkan)
