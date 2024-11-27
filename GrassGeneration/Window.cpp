@@ -32,6 +32,7 @@ void Window::Create(std::string& name)
 	glfwSwapInterval(1);
 
 	glfwSetCursorPos(_window,_size.x / 2, _size.y / 2);
+	glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 }
 
 bool Window::ShouldClose()

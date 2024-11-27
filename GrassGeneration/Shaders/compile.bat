@@ -1,16 +1,18 @@
-if not exist "..\..\out\build\x64-Debug\GrassGeneration\Shaders\" mkdir ..\..\out\build\x64-Debug\GrassGeneration\Shaders
+if not exist "%2\GrassGeneration\Shaders\" mkdir "%2\GrassGeneration\Shaders
 
-C:\VulkanSDK\1.3.296.0\Bin\glslc shader.vert -o ..\..\out\build\x64-Debug\GrassGeneration\Shaders\vert.spv
-C:\VulkanSDK\1.3.296.0\Bin\glslc shader.frag -o ..\..\out\build\x64-Debug\GrassGeneration\Shaders\frag.spv
+echo %2
 
-C:\VulkanSDK\1.3.296.0\Bin\glslc color.frag -o ..\..\out\build\x64-Debug\GrassGeneration\Shaders\colorfrag.spv
+glslc %1\GrassGeneration\Shaders\shader.vert -o %2\GrassGeneration\Shaders\vert.spv
+glslc %1\GrassGeneration\Shaders\shader.frag -o %2\GrassGeneration\Shaders\frag.spv
 
-C:\VulkanSDK\1.3.296.0\Bin\glslc grass.vert -o ..\..\out\build\x64-Debug\GrassGeneration\Shaders\grassvert.spv
-C:\VulkanSDK\1.3.296.0\Bin\glslc grass.frag -o ..\..\out\build\x64-Debug\GrassGeneration\Shaders\grassfrag.spv
+glslc %1\GrassGeneration\Shaders\color.frag -o %2\GrassGeneration\Shaders\colorfrag.spv
 
-C:\VulkanSDK\1.3.296.0\Bin\glslc grassGen.comp -o ..\..\out\build\x64-Debug\GrassGeneration\Shaders\grassGenComp.spv
+glslc %1\GrassGeneration\Shaders\grass.vert -o %2\GrassGeneration\Shaders\grassvert.spv
+glslc %1\GrassGeneration\Shaders\grass.frag -o %2\GrassGeneration\Shaders\grassfrag.spv
 
-C:\VulkanSDK\1.3.296.0\Bin\glslc skybox.vert -o ..\..\out\build\x64-Debug\GrassGeneration\Shaders\skyboxvert.spv
-C:\VulkanSDK\1.3.296.0\Bin\glslc skybox.frag -o ..\..\out\build\x64-Debug\GrassGeneration\Shaders\skyboxfrag.spv
+glslc %1\GrassGeneration\Shaders\grassGen.comp -o %2\GrassGeneration\Shaders\grassGenComp.spv
+
+glslc %1\GrassGeneration\Shaders\skybox.vert -o %2\GrassGeneration\Shaders\skyboxvert.spv
+glslc %1\GrassGeneration\Shaders\skybox.frag -o %2\GrassGeneration\Shaders\skyboxfrag.spv
 
 pause
