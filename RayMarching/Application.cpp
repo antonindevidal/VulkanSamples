@@ -31,7 +31,7 @@ UniformBufferObject createMatrices(int width, int height)
 }
 
 int main() {
-
+    std::cout << "aaaaaaaaa0" << std::endl;
     std::shared_ptr<Window> window = std::make_shared<Window>();
     window->Create(windowName);
     
