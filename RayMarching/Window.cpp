@@ -5,8 +5,9 @@
 std::vector<Window::FrameBufferResizeCallback> Window::_frameBufferResizeCallbacks = {};
 
 Window::Window() :
-	_size(800, 600),
-	_window(nullptr)
+	_size(600, 600),
+	_window(nullptr),
+	_mousePosition()
 {
 }
 
@@ -22,13 +23,16 @@ void Window::Create(std::string& name)
 		throw std::runtime_error("Error Creating Window");
 
 	glfwMakeContextCurrent(_window);
-	glfwSetFramebufferSizeCallback(_window, [](GLFWwindow* window, int width, int height){ 
+	glfwSetFramebufferSizeCallback(_window, [](GLFWwindow* window, int width, int height) {
 		for (auto& callback : _frameBufferResizeCallbacks)
 		{
 			callback(width, height);
 		}
-	});
+		});
 	glfwSwapInterval(1);
+
+	glfwSetCursorPos(_window, _size.x / 2, _size.y / 2);
+	//glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 }
 
 bool Window::ShouldClose()
@@ -59,6 +63,24 @@ glm::uvec2 Window::GetSize()
 	return { x,y };
 }
 
+bool Window::isKeyPressed(const unsigned int& keycode)
+{
+	auto state = glfwGetKey(_window, keycode);
+	return state == GLFW_REPEAT || state == GLFW_PRESS;
+}
+
+void Window::setCursorPosition(uint32_t x, uint32_t y)
+{
+	glfwSetCursorPos(_window, x, y);
+}
+
+glm::vec2 Window::getMousePosition()
+{
+	double x, y;
+	glfwGetCursorPos(_window, &x, &y);
+	return { x,y };
+}
+
 const char** Window::getRequiredExtensions(uint32_t& extensionCount)
 {
 	return glfwGetRequiredInstanceExtensions(&extensionCount);
@@ -80,3 +102,4 @@ void Window::addFrameBufferResizeCallback(FrameBufferResizeCallback callback)
 {
 	_frameBufferResizeCallbacks.push_back(callback);
 }
+
