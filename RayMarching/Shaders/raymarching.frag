@@ -39,13 +39,26 @@ float map(vec3 p)
     return min(box,sphere);
 }
 
+
 void main() {
+
+    float fov = 45;
+    vec2 res = vec2(600,600);
+    float aspect = res.x/res.y;
+
     vec2 uv = vec2((fragTexCoord*2)-1);
 
-    //vec3 ro = vec3(0.0, -3.0, 0.0); //Ray origin
     vec3 ro = vec3(ubo.cameraPos); //Ray origin
-    //vec3 rd = normalize(vec3(uv.x, 1.0, uv.y)); //Ray Direction
-    vec3 rd = normalize(vec3(uv.x, 0.0, uv.y) + vec3(ubo.cameraFront)); //Ray Direction
+ 
+    // Ray direction
+    vec2 offsets = uv * tan(fov/2.0);
+    vec3 rayFront = normalize(vec3(ubo.cameraFront));
+    vec3 rayRight = normalize(cross(rayFront, normalize(vec3(0.0,0.0,1.0))));
+    vec3 rayUp = cross(rayRight, rayFront);
+    vec3 rayDir = rayFront + rayRight * offsets.x + rayUp * offsets.y;
+    vec3 rd = normalize(rayDir);
+
+
     vec3 color = vec3(0.0);
 
     float t = 0.0; // Distance travelled

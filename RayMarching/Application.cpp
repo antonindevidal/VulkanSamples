@@ -102,7 +102,7 @@ int main() {
         float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
         lastFrameTime = currentTime;
 
-        //moveCamera(camera, window, deltaTime);
+        moveCamera(camera, window, deltaTime);
         auto matrices = createUniformBuffer(renderer.getSwapchainWidth(), renderer.getSwapchainHeight(), time, camera);
         renderer.updateUniformBuffer<UniformBufferObject>(uniforms, matrices);
 
