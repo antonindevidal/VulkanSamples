@@ -16,27 +16,55 @@ layout(location = 2) in vec2 fragTexCoord;
 
 layout(location = 0) out vec4 outColor;
 
+const int MAX_MARCHING_STEPS = 80;
+const float MIN_DIST = 0.0;
+const float MAX_DIST = 50.0;
+const float PRECISION = 0.0001;
 
-float sdfSphere(vec3 p, float r)
+struct Surface {
+    float sd;
+    vec3 col;
+};
+
+Surface sdfSphere(vec3 p, float r, vec3 col)
 {
-    return length(p) - r ; 
+    float d = length(p) - r; 
+    return Surface(d,col);
 }
 
-float sdfBox(vec3 p, vec3 b)
+Surface sdfBox(vec3 p, vec3 b, vec3 col)
 {
     vec3 q = abs(p) - b;
-    return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
+    float d = length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
+    return Surface(d, col);
 }
 
-float map(vec3 p)
+Surface sdfPlane(vec3 p, vec3 col) {
+  float d = p.z + 5.;
+  return Surface(d, col);
+}
+
+Surface minSurf(Surface object, Surface other)
+{
+    if( object.sd > other.sd)
+    {
+        return other;
+    }
+    return object;
+}
+
+Surface map(vec3 p)
 {
     vec3 spherePos = vec3(sin(ubo.time) * 3.0,0.0,0.0);
     vec3 boxPos = vec3(0.0,0.0,0.0);
+    vec3 floorPos = vec3(0.0,0.0,-5.0);
 
-    float sphere = sdfSphere(p - spherePos, 1.0) ; 
-    float box = sdfBox(p-boxPos,vec3(0.75));
-    
-    return min(box,sphere);
+    Surface sphere = sdfSphere(p - spherePos, 1.0, vec3(1.0,0.0,0.0)); 
+    Surface box = sdfBox(p - boxPos,vec3(0.75),vec3(0.0,1.0,0.0));
+    Surface plane = sdfPlane(p, vec3( + 0.7*mod(floor(p.x) + floor(p.y), 2.0)));
+
+    Surface temp = minSurf(box,sphere);
+    return minSurf(temp,plane);
 }
 
 
@@ -63,17 +91,25 @@ void main() {
 
     float t = 0.0; // Distance travelled
 
-
-    for (int i = 0; i < 80; i++)
+    Surface d;
+    for (int i = 0; i < MAX_MARCHING_STEPS; i++)
     {
         vec3 p = ro + rd * t; // Position along ray
-        float d = map(p); // Max safe distance
-        t += d;
+        d = map(p); // Max safe distance
+        t += d.sd;
 
-        if( d < 0.001 || d > 100.0) break;
+        if( d.sd < PRECISION || t > MAX_DIST) break;
     }
+    d.sd = t;
 
-    color = vec3( t*0.2);
+    if(d.sd > MAX_DIST)
+    {
+        color = vec3( 1.0,1.0,1.0);
+    }
+    else
+    {
+        color = d.col;
+    }
 
     outColor = vec4(color,1.0);    
 }
