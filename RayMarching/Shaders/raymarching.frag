@@ -41,7 +41,7 @@ Surface sdfBox(vec3 p, vec3 b, vec3 col)
 }
 
 Surface sdfPlane(vec3 p, vec3 col) {
-  float d = p.z + 5.;
+  float d = p.z + 3.;
   return Surface(d, col);
 }
 
@@ -68,13 +68,25 @@ Surface map(vec3 p)
     return minSurf(temp,plane);
 }
 
-vec3 calcNormal( in vec3 pos )
+vec3 calcNormal(vec3 pos )
 {
     vec2 e = vec2(1.0,-1.0)*0.5773*0.0005;
     return normalize( e.xyy*map( pos + e.xyy ).sd.x + 
 					  e.yyx*map( pos + e.yyx ).sd.x + 
 					  e.yxy*map( pos + e.yxy ).sd.x + 
 					  e.xxx*map( pos + e.xxx ).sd.x );
+}
+float calcShadow(vec3 ro, vec3 rd, float mint, float maxt )
+{
+    float t = mint;
+    for( int i=0; i<256 && t<maxt; i++ )
+    {
+        float h = map(ro + rd*t).sd;
+        if( h<0.001 )
+            return 0.0;
+        t += h;
+    }
+    return 1.0;
 }
 
 void main() {
@@ -97,7 +109,7 @@ void main() {
     vec3 rd = normalize(rayDir);
 
 
-    vec3 color = vec3(0.0);
+    vec4 color = vec4(0.0);
 
     float t = 0.0; // Distance travelled
 
@@ -116,19 +128,21 @@ void main() {
 
     if(d.sd > MAX_DIST)
     {
-        color = vec3( 1.0,1.0,1.0);
+        color = vec4( 1.0,1.0,1.0,0.0);
     }
     else
     {
-        color = d.col;
-
         vec3 norm = calcNormal(p);
 
         float diffuse = max(0.0,dot(-vec3(ubo.dirLight),norm));
         vec3 hv = normalize(vec3(-ubo.dirLight) - rd);
         float specular = pow(max(0.0,dot(hv,norm)),64);
-        color = d.col * ( 0.2 + diffuse  + specular);
+
+        float shadow = calcShadow(p,vec3(-ubo.dirLight),0.02,10);
+
+        color = vec4(d.col * ( 0.2 + diffuse *shadow  + specular),1.0) ;
+
     }
 
-    outColor = vec4(color,1.0);    
+    outColor = color;    
 }
