@@ -68,6 +68,14 @@ Surface map(vec3 p)
     return minSurf(temp,plane);
 }
 
+vec3 calcNormal( in vec3 pos )
+{
+    vec2 e = vec2(1.0,-1.0)*0.5773*0.0005;
+    return normalize( e.xyy*map( pos + e.xyy ).sd.x + 
+					  e.yyx*map( pos + e.yyx ).sd.x + 
+					  e.yxy*map( pos + e.yxy ).sd.x + 
+					  e.xxx*map( pos + e.xxx ).sd.x );
+}
 
 void main() {
 
@@ -94,15 +102,17 @@ void main() {
     float t = 0.0; // Distance travelled
 
     Surface d;
+    vec3 p;
     for (int i = 0; i < MAX_MARCHING_STEPS; i++)
     {
-        vec3 p = ro + rd * t; // Position along ray
+        p = ro + rd * t; // Position along ray
         d = map(p); // Max safe distance
         t += d.sd;
 
         if( d.sd < PRECISION || t > MAX_DIST) break;
     }
     d.sd = t;
+
 
     if(d.sd > MAX_DIST)
     {
@@ -111,6 +121,13 @@ void main() {
     else
     {
         color = d.col;
+
+        vec3 norm = calcNormal(p);
+
+        float diffuse = max(0.0,dot(-vec3(ubo.dirLight),norm));
+        vec3 hv = normalize(vec3(-ubo.dirLight) - rd);
+        float specular = pow(max(0.0,dot(hv,norm)),64);
+        color = d.col * ( 0.2 + diffuse  + specular);
     }
 
     outColor = vec4(color,1.0);    
