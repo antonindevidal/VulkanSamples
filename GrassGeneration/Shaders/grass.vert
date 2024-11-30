@@ -12,6 +12,7 @@ layout(std140,binding = 0) uniform UniformBufferObject {
     mat4 proj;
     vec4 dirLight;
     vec4 cameraFront;
+    vec4 cameraPosition;
     float time;
 } ubo;
 
@@ -30,6 +31,7 @@ layout(location = 3) in vec2 inTexCoord;
 layout(location = 0) out vec3 fragColor;
 layout(location = 1) out vec3 fragNormal;
 layout(location = 2) out vec2 fragTexCoord;
+layout(location = 3) out vec3 fragVertPos;
 
 
 float PI = 3.14;
@@ -117,4 +119,7 @@ void main() {
     fragColor = inColor;    
     fragNormal = bladeNormWindEffect;
     fragTexCoord = inTexCoord;
+
+    vec4 vertPos4 =  ubo.model * vec4(bladePosWindEffect + bladeOffset, 1.0);
+    fragVertPos = vec3(vertPos4);
 }

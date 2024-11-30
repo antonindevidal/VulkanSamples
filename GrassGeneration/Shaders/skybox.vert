@@ -6,6 +6,7 @@ layout(std140,binding = 0) uniform UniformBufferObject {
     mat4 proj;
     vec4 dirLight;
     vec4 cameraFront;
+    vec4 cameraPosition;
     float time;
 } ubo;
 

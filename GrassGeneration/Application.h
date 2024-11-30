@@ -106,5 +106,6 @@ struct UniformBufferObject {
 	alignas(16) glm::mat4 proj;
 	alignas(16) glm::vec4 directionnalLight;
 	alignas(16) glm::vec4 cameraFront;
+	alignas(16) glm::vec4 cameraPosition;
 	alignas(16) float time;
 };

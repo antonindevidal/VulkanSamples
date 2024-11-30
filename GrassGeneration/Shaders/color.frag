@@ -12,6 +12,7 @@ layout(binding = 0) uniform UniformBufferObject {
     mat4 proj;
     vec4 dirLight;
     vec3 cameraFront;
+    vec4 cameraPosition;
     float time;
 } ubo;
 
