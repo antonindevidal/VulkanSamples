@@ -21,7 +21,7 @@ UniformBufferObject createUniformBuffer(int width, int height, float totalTime, 
     ubo.view = cam.view;
     ubo.proj = glm::perspective(glm::radians(45.0f), width / (float)height, 0.1f, 1000.0f);
     ubo.proj[1][1] *= -1;
-    ubo.directionnalLight = glm::vec4(glm::normalize(glm::vec3{ cos(45.0),0.0,-sin(45.0) }), 1.0);
+    ubo.directionnalLight = glm::vec4(glm::normalize(glm::vec3{ cos(totalTime),sin(totalTime),-1}), 1.0);
     ubo.cameraFront = glm::vec4(cam.front, 1.0);
     ubo.cameraPos = glm::vec4(cam.position, 1.0);
     ubo.windowData = glm::vec4(width, height, CAMERA_FOV, 0.0);

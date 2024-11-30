@@ -76,17 +76,19 @@ vec3 calcNormal(vec3 pos )
 					  e.yxy*map( pos + e.yxy ).sd.x + 
 					  e.xxx*map( pos + e.xxx ).sd.x );
 }
-float calcShadow(vec3 ro, vec3 rd, float mint, float maxt )
+float calcShadow(vec3 ro, vec3 rd, float mint, float maxt, float k)
 {
+    float res = 1.0;
     float t = mint;
     for( int i=0; i<256 && t<maxt; i++ )
     {
         float h = map(ro + rd*t).sd;
         if( h<0.001 )
             return 0.0;
+        res = min( res, k*h/t );
         t += h;
     }
-    return 1.0;
+    return res;
 }
 
 void main() {
@@ -138,9 +140,9 @@ void main() {
         vec3 hv = normalize(vec3(-ubo.dirLight) - rd);
         float specular = pow(max(0.0,dot(hv,norm)),64);
 
-        float shadow = calcShadow(p,vec3(-ubo.dirLight),0.02,10);
+        float shadow = calcShadow(p,vec3(-ubo.dirLight),0.02,10,32);
 
-        color = vec4(d.col * ( 0.2 + diffuse *shadow  + specular),1.0) ;
+        color = vec4(d.col * ( diffuse *shadow  + specular),1.0) ;
 
     }
 
