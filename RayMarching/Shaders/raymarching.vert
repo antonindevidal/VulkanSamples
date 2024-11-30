@@ -7,6 +7,7 @@ layout(std140, binding = 0) uniform UniformBufferObject {
     vec4 dirLight;
     vec4 cameraFront;    
     vec4 cameraPos;
+    vec4 windowData;
     float time;
 } ubo;
 

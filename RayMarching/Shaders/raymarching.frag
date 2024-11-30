@@ -7,6 +7,7 @@ layout(std140, binding = 0) uniform UniformBufferObject {
     vec4 dirLight;
     vec4 cameraFront;
     vec4 cameraPos;
+    vec4 windowData;
     float time;
 } ubo;
 
@@ -70,11 +71,12 @@ Surface map(vec3 p)
 
 void main() {
 
-    float fov = 45;
-    vec2 res = vec2(600,600);
+    float fov = ubo.windowData.z;
+    vec2 res = vec2(ubo.windowData.x,ubo.windowData.y);
     float aspect = res.x/res.y;
 
     vec2 uv = vec2((fragTexCoord*2)-1);
+    uv.x *= aspect;
 
     vec3 ro = vec3(ubo.cameraPos); //Ray origin
  

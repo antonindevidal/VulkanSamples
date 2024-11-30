@@ -8,6 +8,7 @@ std::string windowName = "Vulkan triangle";
 // Camera parameters
 static const float CAMERA_SPEED = 5;
 static const float CAMERA_SENSITIVITY = 0.1;
+static const float CAMERA_FOV = 45.0;
 
 struct Camera
 {
@@ -95,5 +96,6 @@ struct UniformBufferObject {
 	alignas(16) glm::vec4 directionnalLight;
 	alignas(16) glm::vec4 cameraFront;
 	alignas(16) glm::vec4 cameraPos;
+	alignas(16) glm::vec4 windowData; //width, height, fov
 	alignas(16) float time;
 };
