@@ -91,16 +91,22 @@ int main() {
     renderer.createRenderer(window);
 
     Mesh meshSSRect = renderer.createMesh(verticesSSRect, indicesSSRect);
+    Mesh meshSkybox = renderer.createMesh(verticesSkybox, indicesSkybox);
+
+    Texture textureSkybox = renderer.createCubeMap({ "Textures/skybox/nx.png","Textures/skybox/px.png","Textures/skybox/py.png","Textures/skybox/ny.png","Textures/skybox/nz.png","Textures/skybox/pz.png" });
 
     UniformBuffer uniforms = renderer.createUniformBuffer<UniformBufferObject>();
 
     DescriptorPool pool = renderer.createDescriptorPool({ {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,1},{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,1} }, 3);
-    DescriptorSetLayout layoutUb = renderer.createDescriptorSetlayout(uniforms);
-    DescriptorSet descriptorSetUb = renderer.createDescriptorSet(layoutUb, pool, uniforms);
 
+    DescriptorSetLayout layoutUb = renderer.createDescriptorSetlayout(uniforms);
+    DescriptorSetLayout layoutSkybox = renderer.createDescriptorSetLayoutSkybox();
+
+    DescriptorSet descriptorSetUb = renderer.createDescriptorSet(layoutUb, pool, uniforms);
+    DescriptorSet descriptorSetSkybox = renderer.createDescriptorSetSkybox(layoutSkybox, pool, textureSkybox);
 
     GraphicsPipeline pipelineRM = renderer.createRaymarchingGraphicsPipeline("Shaders/raymarchingVert.spv", "Shaders/raymarchingFrag.spv", { layoutUb });
-
+    GraphicsPipeline pipelineSkybox = renderer.createGraphicsPipeline("Shaders/skyboxvert.spv", "Shaders/skyboxfrag.spv", { layoutUb, layoutSkybox });
 
     while (!window->ShouldClose()) {
         window->PollEvents();
@@ -119,6 +125,13 @@ int main() {
         // Draw
         renderer.startFrame();
 
+        // Skybox
+        renderer.bindGraphicsPipeline(pipelineSkybox);
+        renderer.bindDescriptorSet(descriptorSetUb);
+        renderer.bindDescriptorSet(descriptorSetSkybox, 1);
+        renderer.drawMesh(meshSkybox);
+
+        // Ray marching
         renderer.bindGraphicsPipeline(pipelineRM);
         renderer.bindDescriptorSet(descriptorSetUb);
         renderer.drawMesh(meshSSRect);

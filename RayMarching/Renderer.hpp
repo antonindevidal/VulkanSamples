@@ -74,8 +74,8 @@ private:
 	VkSampler createTextureSampler();
 	void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
 	VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
-	void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
-	void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+	void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t layerCount = 1u);
+	void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layerCount = 1u);
 
 	void startRecording(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 	void endRecording(VkCommandBuffer commandBuffer);
@@ -130,6 +130,8 @@ public:
 	Texture createTexture(const std::string& image);
 	void destroyTexture(Texture texture);
 
+	Texture createCubeMap(const std::vector<std::string>& images);
+
 	// Descriptors
 	
 	DescriptorPool createDescriptorPool(std::vector<std::pair<VkDescriptorType,uint32_t>> infos, uint32_t maxSets);
@@ -137,10 +139,12 @@ public:
 
 	DescriptorSetLayout createDescriptorSetlayout(Texture t);
 	DescriptorSetLayout createDescriptorSetlayout(UniformBuffer ub);
+	DescriptorSetLayout createDescriptorSetLayoutSkybox();
 	void destroyDescriptorSetLayout(DescriptorSetLayout layout);
 
 	DescriptorSet createDescriptorSet(DescriptorSetLayout layout, DescriptorPool pool, Texture t);
 	DescriptorSet createDescriptorSet(DescriptorSetLayout layout, DescriptorPool pool, UniformBuffer ub);
+	DescriptorSet createDescriptorSetSkybox(DescriptorSetLayout layout, DescriptorPool pool, Texture cubemap);
 	void destroyDescriptorSet(DescriptorSet descriptorSet);
 	void bindDescriptorSet(DescriptorSet descriptorSet, uint32_t index = 0);
 
