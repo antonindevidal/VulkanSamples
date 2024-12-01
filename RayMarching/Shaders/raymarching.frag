@@ -54,6 +54,15 @@ Surface minSurf(Surface object, Surface other)
     return object;
 }
 
+Surface opSmoothUnion( Surface d1, Surface d2, float k )
+{
+    Surface s;
+    float h = clamp( 0.5 + 0.5*(d2.sd-d1.sd)/k, 0.0, 1.0 );
+    s.sd = mix( d2.sd, d1.sd, h ) - k*h*(1.0-h);
+    s.col = mix( d2.col, d1.col, h ) - k*h*(1.0-h);
+    return s;
+}
+
 Surface map(vec3 p)
 {
     vec3 spherePos = vec3(sin(ubo.time) * 3.0,0.0,0.0);
@@ -64,7 +73,7 @@ Surface map(vec3 p)
     Surface box = sdfBox(p - boxPos,vec3(0.75),vec3(0.0,1.0,0.0));
     Surface plane = sdfPlane(p, vec3( + 0.7*mod(floor(p.x) + floor(p.y), 2.0)));
 
-    Surface temp = minSurf(box,sphere);
+    Surface temp = opSmoothUnion(box,sphere,1.0);
     return minSurf(temp,plane);
 }
 
