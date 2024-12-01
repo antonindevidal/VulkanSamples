@@ -43,8 +43,8 @@ Surface sdfBox(vec3 p, vec3 b, vec3 col)
     return Surface(d, col,0.8);
 }
 
-Surface sdfPlane(vec3 p, vec3 col) {
-  float d = p.z + 3.;
+Surface sdfPlane(vec3 p, vec3 pos, vec3 col) {
+  float d = p.z - pos.z;
   return Surface(d, col,0.0);
 }
 
@@ -71,11 +71,11 @@ Surface map(vec3 p)
 {
     vec3 spherePos = vec3(sin(ubo.time) * 3.0,0.0,0.0);
     vec3 boxPos = vec3(0.0,0.0,0.0);
-    vec3 floorPos = vec3(0.0,0.0,-5.0);
+    vec3 floorPos = vec3(0.0,0.0,-3.0);
 
     Surface sphere = sdfSphere(p - spherePos, 1.0, vec3(1.0,0.0,0.0)); 
     Surface box = sdfBox(p - boxPos,vec3(0.75),vec3(0.0,1.0,0.0));
-    Surface plane = sdfPlane(p, vec3( + 0.7*mod(floor(p.x) + floor(p.y), 2.0)));
+    Surface plane = sdfPlane(p, floorPos, vec3( + 0.7*mod(floor(p.x) + floor(p.y), 2.0)));
 
     Surface temp = opSmoothUnion(box,sphere,1.0);
     return minSurf(temp,plane);
@@ -147,21 +147,23 @@ void main() {
     }
     else
     {
+        // Color calculation
         vec3 norm = calcNormal(p);
 
         mat3 rotationZup = mat3(1.0, 0.0,  0.0,
-                            0.0, 0.0,  1.0,
-                            0.0, 1.0, 0.0);
+                                0.0, 0.0,  1.0,
+                                0.0, 1.0, 0.0);
 
         vec3 cubemapReflectionColor = texture(texSampler, rotationZup * reflect(rd, norm)).rgb;
 
+        // Blinn Phong
         float diffuse = max(0.0,dot(-vec3(ubo.dirLight),norm));
         vec3 hv = normalize(vec3(-ubo.dirLight) - rd);
         float specular = pow(max(0.0,dot(hv,norm)),64);
 
         float shadow = calcShadow(p,vec3(-ubo.dirLight),0.02,10,32);
 
-        color = vec4(mix(d.col, cubemapReflectionColor, d.reflection) * (0.2 + diffuse *shadow  + specular) ,1);
+        color = vec4(mix(d.col, cubemapReflectionColor, d.reflection) * (0.2 + diffuse * shadow  + specular) ,1);
     }
 
     outColor = color;    
