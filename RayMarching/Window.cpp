@@ -5,7 +5,7 @@
 std::vector<Window::FrameBufferResizeCallback> Window::_frameBufferResizeCallbacks = {};
 
 Window::Window() :
-	_size(600, 600),
+	_size(800, 600),
 	_window(nullptr),
 	_mousePosition()
 {

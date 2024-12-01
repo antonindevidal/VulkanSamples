@@ -10,6 +10,23 @@
 
 Compiling the project only works on Windows for now. To compile it, run the CMakeList.txt file for the desired project.
 
+## [Raymarching](/RayMarching)
+
+This project is about rendering a scene with Raymarching.
+
+### Features :
+- Signed Distance Functions for Cube, Sphere and Plane
+- Smooth union function
+- Blinn Phong lighting
+- Soft shadows rendering
+- Cubemap reflexions
+
+Works with camera movement and skybox created for the grass generation.
+
+Inspiration : Inigo Quilez blog  
+
+![Grass Generation](/Documentation/RayMarching.png)
+
 
 ## [Grass Generation](/GrassGeneration)
 
@@ -28,6 +45,7 @@ This project showcases a scene with foliage rendering and real time wind simulat
 - Size and position of the grass field
 - Wind direction, power, amplitude, frequency
 
+Inspiration : Procedural Grass in 'Ghost of Tsushima' GDC talk
 
 ![Grass Generation](/Documentation/GrassGeneration.png)
 

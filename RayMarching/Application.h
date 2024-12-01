@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "VkStructs.hpp"
 
-std::string windowName = "Vulkan triangle";
+std::string windowName = "Vulkan Ray Marching";
 
 // Camera parameters
 static const float CAMERA_SPEED = 5;
