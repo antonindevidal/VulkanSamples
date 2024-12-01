@@ -46,30 +46,38 @@ void moveCamera(Camera& camera, std::shared_ptr<Window> window, float deltaTime)
     if (window->isKeyPressed(GLFW_KEY_SPACE))
         camera.position.z += speed;
 
-    auto mousePos = window->getMousePosition();
-    auto screenSize = window->getFrameBufferSize();
-    float xoffset = mousePos.x - (screenSize.x / 2);
-    float yoffset = (screenSize.y / 2) - mousePos.y; // reversed since y-coordinates range from bottom to top
+    if (window->isMouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
+    {
+        auto mousePos = window->getMousePosition();
+        auto screenSize = window->getFrameBufferSize();
+        float xoffset = mousePos.x - (screenSize.x / 2);
+        float yoffset = (screenSize.y / 2) - mousePos.y; // reversed since y-coordinates range from bottom to top
 
-    xoffset *= CAMERA_SENSITIVITY;
-    yoffset *= CAMERA_SENSITIVITY;
+        xoffset *= CAMERA_SENSITIVITY;
+        yoffset *= CAMERA_SENSITIVITY;
 
 
-    camera.yaw += xoffset;
-    camera.pitch += yoffset;
-    if (camera.pitch > 89.0f)
-        camera.pitch = 89.0f;
-    if (camera.pitch < -89.0f)
-        camera.pitch = -89.0f;
+        camera.yaw += xoffset;
+        camera.pitch += yoffset;
+        if (camera.pitch > 89.0f)
+            camera.pitch = 89.0f;
+        if (camera.pitch < -89.0f)
+            camera.pitch = -89.0f;
 
-    glm::vec3 direction;
-    direction.x = -cos(glm::radians(camera.yaw)) * cos(glm::radians(camera.pitch));
-    direction.y = sin(glm::radians(camera.yaw)) * cos(glm::radians(camera.pitch));
-    direction.z = sin(glm::radians(camera.pitch));
-    camera.front = glm::normalize(direction);
+        glm::vec3 direction;
+        direction.x = -cos(glm::radians(camera.yaw)) * cos(glm::radians(camera.pitch));
+        direction.y = sin(glm::radians(camera.yaw)) * cos(glm::radians(camera.pitch));
+        direction.z = sin(glm::radians(camera.pitch));
+        camera.front = glm::normalize(direction);
 
+        window->setCursorPosition(screenSize.x / 2, screenSize.y / 2);
+        window->setCursorVisible(false);
+    }
+    else
+    {
+        window->setCursorVisible(true);
+    }
     camera.view = glm::lookAt(camera.position, camera.position + camera.front, camera.up);
-    window->setCursorPosition(screenSize.x / 2, screenSize.y / 2);
 }
 
 int main() {
@@ -91,7 +99,7 @@ int main() {
     DescriptorSet descriptorSetUb = renderer.createDescriptorSet(layoutUb, pool, uniforms);
 
 
-    GraphicsPipeline pipelineRM = renderer.createGraphicsPipeline("Shaders/raymarchingVert.spv", "Shaders/raymarchingFrag.spv", { layoutUb });
+    GraphicsPipeline pipelineRM = renderer.createRaymarchingGraphicsPipeline("Shaders/raymarchingVert.spv", "Shaders/raymarchingFrag.spv", { layoutUb });
 
 
     while (!window->ShouldClose()) {

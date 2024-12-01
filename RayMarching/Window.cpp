@@ -69,6 +69,12 @@ bool Window::isKeyPressed(const unsigned int& keycode)
 	return state == GLFW_REPEAT || state == GLFW_PRESS;
 }
 
+bool Window::isMouseButtonPressed(const unsigned int& keycode)
+{
+	auto state = glfwGetMouseButton(_window, keycode);
+	return state == GLFW_REPEAT || state == GLFW_PRESS;
+}
+
 void Window::setCursorPosition(uint32_t x, uint32_t y)
 {
 	glfwSetCursorPos(_window, x, y);
@@ -79,6 +85,11 @@ glm::vec2 Window::getMousePosition()
 	double x, y;
 	glfwGetCursorPos(_window, &x, &y);
 	return { x,y };
+}
+
+void Window::setCursorVisible(bool visibility)
+{
+	glfwSetInputMode(_window, GLFW_CURSOR, visibility ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
 }
 
 const char** Window::getRequiredExtensions(uint32_t& extensionCount)

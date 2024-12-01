@@ -25,9 +25,11 @@ public:
 	glm::uvec2 GetSize();
 
 	bool isKeyPressed(const unsigned int& keycode);
+	bool isMouseButtonPressed(const unsigned int& keycode);
 
 	void setCursorPosition(uint32_t x, uint32_t y);
 	glm::vec2 getMousePosition();
+	void setCursorVisible(bool visibility);
 
 	const char** getRequiredExtensions(uint32_t& extensionCount);
 	HWND getWin32Window();

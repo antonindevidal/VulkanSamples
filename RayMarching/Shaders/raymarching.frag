@@ -151,8 +151,7 @@ void main() {
 
         float shadow = calcShadow(p,vec3(-ubo.dirLight),0.02,10,32);
 
-        color = vec4(d.col * ( diffuse *shadow  + specular),1.0) ;
-
+        color = vec4(d.col * (0.2 + diffuse *shadow  + specular),1);
     }
 
     outColor = color;    
