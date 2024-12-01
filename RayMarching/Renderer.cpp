@@ -752,7 +752,7 @@ void Renderer::endSingleTimeCommands(VkCommandBuffer commandBuffer) {
 	vkFreeCommandBuffers(_device.getDevice(), _commandPool, 1, &commandBuffer);
 }
 
-GraphicsPipeline Renderer::createGraphicsPipeline(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, std::vector<VkDescriptorSetLayout> descriptorSetLayouts)
+GraphicsPipeline Renderer::createGraphicsPipeline(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, std::vector<VkDescriptorSetLayout> descriptorSetLayouts, bool depthEnable)
 {
 	GraphicsPipeline graphicsPipeline;
 
@@ -827,7 +827,7 @@ GraphicsPipeline Renderer::createGraphicsPipeline(const std::string& vertexShade
 	rasterizer.rasterizerDiscardEnable = VK_FALSE;
 	rasterizer.polygonMode = VK_POLYGON_MODE_FILL; // Line and point require GPU feature
 	rasterizer.lineWidth = 1.0f;
-	rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+	rasterizer.cullMode = VK_CULL_MODE_NONE;
 	rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 	rasterizer.depthBiasEnable = VK_FALSE;
 	rasterizer.depthBiasConstantFactor = 0.0f; // Optional
@@ -875,7 +875,7 @@ GraphicsPipeline Renderer::createGraphicsPipeline(const std::string& vertexShade
 
 	VkPipelineDepthStencilStateCreateInfo depthStencil{};
 	depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-	depthStencil.depthTestEnable = VK_TRUE;
+	depthStencil.depthTestEnable = depthEnable ? VK_TRUE : VK_FALSE;
 	depthStencil.depthWriteEnable = VK_TRUE;
 	depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
 	depthStencil.depthBoundsTestEnable = VK_FALSE;
@@ -1345,7 +1345,6 @@ DescriptorSetLayout Renderer::createDescriptorSetLayoutSkybox()
 {
 	VkDescriptorSetLayout layout;
 
-
 	VkDescriptorSetLayoutBinding samplerLayoutBinding{};
 	samplerLayoutBinding.binding = 0;
 	samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -1436,15 +1435,8 @@ DescriptorSet Renderer::createDescriptorSet(DescriptorSetLayout layout, Descript
 		descriptorWrites[0].descriptorCount = 1;
 		descriptorWrites[0].pBufferInfo = &bufferInfo;
 
-		try
-		{
-			vkUpdateDescriptorSets(_device.getDevice(), static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
-		}
-		catch (std::exception e)
-		{
-			std::cout << e.what();
-			throw std::runtime_error("aaaaaaaaaaa");
-		}
+
+		vkUpdateDescriptorSets(_device.getDevice(), static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
 	return set;
 }

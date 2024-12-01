@@ -97,7 +97,7 @@ int main() {
 
     UniformBuffer uniforms = renderer.createUniformBuffer<UniformBufferObject>();
 
-    DescriptorPool pool = renderer.createDescriptorPool({ {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,1},{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,1} }, 3);
+    DescriptorPool pool = renderer.createDescriptorPool({ {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,1},{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,2} }, 5);
 
     DescriptorSetLayout layoutUb = renderer.createDescriptorSetlayout(uniforms);
     DescriptorSetLayout layoutSkybox = renderer.createDescriptorSetLayoutSkybox();
@@ -105,8 +105,8 @@ int main() {
     DescriptorSet descriptorSetUb = renderer.createDescriptorSet(layoutUb, pool, uniforms);
     DescriptorSet descriptorSetSkybox = renderer.createDescriptorSetSkybox(layoutSkybox, pool, textureSkybox);
 
-    GraphicsPipeline pipelineRM = renderer.createRaymarchingGraphicsPipeline("Shaders/raymarchingVert.spv", "Shaders/raymarchingFrag.spv", { layoutUb });
-    GraphicsPipeline pipelineSkybox = renderer.createGraphicsPipeline("Shaders/skyboxvert.spv", "Shaders/skyboxfrag.spv", { layoutUb, layoutSkybox });
+    GraphicsPipeline pipelineRM = renderer.createRaymarchingGraphicsPipeline("Shaders/raymarchingVert.spv", "Shaders/raymarchingFrag.spv", { layoutUb, layoutSkybox });
+    GraphicsPipeline pipelineSkybox = renderer.createGraphicsPipeline("Shaders/skyboxvert.spv", "Shaders/skyboxfrag.spv", { layoutUb, layoutSkybox }, false);
 
     while (!window->ShouldClose()) {
         window->PollEvents();
@@ -130,22 +130,28 @@ int main() {
         renderer.bindDescriptorSet(descriptorSetUb);
         renderer.bindDescriptorSet(descriptorSetSkybox, 1);
         renderer.drawMesh(meshSkybox);
-
+        
         // Ray marching
         renderer.bindGraphicsPipeline(pipelineRM);
         renderer.bindDescriptorSet(descriptorSetUb);
+        renderer.bindDescriptorSet(descriptorSetSkybox, 1);
         renderer.drawMesh(meshSSRect);
-
+        
         renderer.endFrame();
     }
     renderer.waitDeviceIdle();
 
     renderer.destroyDescriptorPool(pool);
     renderer.destroyDescriptorSetLayout(layoutUb);
+    renderer.destroyDescriptorSetLayout(layoutSkybox);
     renderer.destroyUniformBuffer(uniforms);
     renderer.destroyGraphicsPipeline(pipelineRM);
+    renderer.destroyGraphicsPipeline(pipelineSkybox);
+
+    renderer.destroyTexture(textureSkybox);
 
     renderer.destroyMesh(meshSSRect);
+    renderer.destroyMesh(meshSkybox);
 
     renderer.destroy();
     window->Destroy();

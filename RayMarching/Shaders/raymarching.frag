@@ -11,6 +11,8 @@ layout(std140, binding = 0) uniform UniformBufferObject {
     float time;
 } ubo;
 
+layout(set = 1, binding = 0) uniform samplerCube texSampler;
+
 layout(location = 0) in vec3 fragColor;
 layout(location = 1) in vec3 fragNormal;
 layout(location = 2) in vec2 fragTexCoord;
@@ -25,24 +27,25 @@ const float PRECISION = 0.0001;
 struct Surface {
     float sd;
     vec3 col;
+    float reflection;
 };
 
 Surface sdfSphere(vec3 p, float r, vec3 col)
 {
     float d = length(p) - r; 
-    return Surface(d,col);
+    return Surface(d,col,0.8);
 }
 
 Surface sdfBox(vec3 p, vec3 b, vec3 col)
 {
     vec3 q = abs(p) - b;
     float d = length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
-    return Surface(d, col);
+    return Surface(d, col,0.8);
 }
 
 Surface sdfPlane(vec3 p, vec3 col) {
   float d = p.z + 3.;
-  return Surface(d, col);
+  return Surface(d, col,0.0);
 }
 
 Surface minSurf(Surface object, Surface other)
@@ -60,6 +63,7 @@ Surface opSmoothUnion( Surface d1, Surface d2, float k )
     float h = clamp( 0.5 + 0.5*(d2.sd-d1.sd)/k, 0.0, 1.0 );
     s.sd = mix( d2.sd, d1.sd, h ) - k*h*(1.0-h);
     s.col = mix( d2.col, d1.col, h ) - k*h*(1.0-h);
+    s.reflection = mix( d2.reflection, d1.reflection, h );
     return s;
 }
 
@@ -145,13 +149,19 @@ void main() {
     {
         vec3 norm = calcNormal(p);
 
+        mat3 rotationZup = mat3(1.0, 0.0,  0.0,
+                            0.0, 0.0,  1.0,
+                            0.0, 1.0, 0.0);
+
+        vec3 cubemapReflectionColor = texture(texSampler, rotationZup * reflect(rd, norm)).rgb;
+
         float diffuse = max(0.0,dot(-vec3(ubo.dirLight),norm));
         vec3 hv = normalize(vec3(-ubo.dirLight) - rd);
         float specular = pow(max(0.0,dot(hv,norm)),64);
 
         float shadow = calcShadow(p,vec3(-ubo.dirLight),0.02,10,32);
 
-        color = vec4(d.col * (0.2 + diffuse *shadow  + specular),1);
+        color = vec4(mix(d.col, cubemapReflectionColor, d.reflection) * (0.2 + diffuse *shadow  + specular) ,1);
     }
 
     outColor = color;    

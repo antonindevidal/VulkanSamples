@@ -103,7 +103,7 @@ private:
 
 public:
 	// Graphics pipeline
-	GraphicsPipeline createGraphicsPipeline(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, std::vector<VkDescriptorSetLayout> descriptorSetLayouts);
+	GraphicsPipeline createGraphicsPipeline(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, std::vector<VkDescriptorSetLayout> descriptorSetLayouts, bool depthEnable = true);
 	GraphicsPipeline createRaymarchingGraphicsPipeline(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, std::vector<VkDescriptorSetLayout> descriptorSetLayouts);
 
 	void destroyGraphicsPipeline(GraphicsPipeline graphicsPipeline);
