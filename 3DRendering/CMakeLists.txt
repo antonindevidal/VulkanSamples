@@ -1,39 +1,33 @@
 add_executable(3DRendering)
 
 set(3DRendering_SRC 
-    Application.cpp
-    Window.cpp
-    Device.cpp
-    Renderer.cpp
-    Helpers.cpp
-    Instance.cpp
-    VkStructs.cpp
+    src/Application.cpp
+    src/Window.cpp
+    src/Device.cpp
+    src/Renderer.cpp
+    src/Helpers.cpp
+    src/Instance.cpp
+    src/VkStructs.cpp
 )
 
 set(3DRendering_HDR
-    Application.h
-    Window.hpp
-    pch.h
-    Device.hpp
-    Renderer.hpp
-    Helpers.cpp
-    Instance.hpp
-    VkStructs.hpp
+    src/Application.h
+    src/Window.hpp
+    src/pch.h
+    src/Device.hpp
+    src/Renderer.hpp
+    src/Helpers.cpp
+    src/Instance.hpp
+    src/VkStructs.hpp
 )
 
-add_custom_target(copy_resources ALL 
+add_custom_target(3DRendering_copy_resources ALL 
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/3DRendering/Textures/ 
-        ${CMAKE_BINARY_DIR}/3DRendering/Textures/
+        ${CMAKE_SOURCE_DIR}/3DRendering/resources/ 
+        ${CMAKE_BINARY_DIR}/3DRendering/resources/
 )
-add_dependencies(3DRendering copy_resources)
+add_dependencies(3DRendering 3DRendering_copy_resources)
 
-add_custom_target(copy_models ALL 
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/3DRendering/Models/ 
-        ${CMAKE_BINARY_DIR}/3DRendering/Models/
-)
-add_dependencies(3DRendering copy_models)
 
 
 target_sources(3DRendering PRIVATE ${3DRendering_SRC})
@@ -42,7 +36,7 @@ target_sources(3DRendering PUBLIC ${3DRendering_HDR})
 # Compiling shaders
 if(WIN32)
     add_custom_target(3DRendering_compile_shaders
-                       COMMAND cmd /C ${CMAKE_SOURCE_DIR}/3DRendering/Shaders/compile.bat ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR})
+                       COMMAND cmd /C ${CMAKE_SOURCE_DIR}/3DRendering/src/shaders/compile.bat ${CMAKE_SOURCE_DIR}/3DRendering ${CMAKE_BINARY_DIR}/3DRendering)
 
     add_dependencies(3DRendering 3DRendering_compile_shaders)
 endif()
