@@ -1,6 +1,7 @@
 add_executable(3DRendering)
 
 set(3DRendering_SRC 
+    src/Engine.cpp
     src/Application.cpp
     src/Window.cpp
     src/Device.cpp
@@ -11,6 +12,7 @@ set(3DRendering_SRC
 )
 
 set(3DRendering_HDR
+    src/Engine.hpp
     src/Application.h
     src/Window.hpp
     src/pch.h
