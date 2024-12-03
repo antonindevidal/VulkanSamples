@@ -1,12 +1,10 @@
 #pragma once
 #define VK_USE_PLATFORM_WIN32_KHR
-
 #include <cstring>
-
-#include "pch.h"
-#include "Helpers.hpp"
+#include "../pch.h"
+#include "../Helpers.hpp"
 #include "vulkan/vulkan.h"
-#include "Window.hpp"
+#include "../Window.hpp"
 
 class Device
 {

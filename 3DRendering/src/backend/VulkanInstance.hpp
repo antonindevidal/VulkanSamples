@@ -1,6 +1,6 @@
 #pragma once
-#include "pch.h"
-#include "Window.hpp"
+#include "../pch.h"
+#include "../Window.hpp"
 
 
 class Instance

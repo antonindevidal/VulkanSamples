@@ -1,4 +1,4 @@
-#include "Device.hpp"
+#include "VulkanDevice.hpp"
 
 
 #define STB_IMAGE_IMPLEMENTATION

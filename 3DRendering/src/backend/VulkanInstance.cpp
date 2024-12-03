@@ -1,4 +1,4 @@
-#include "Instance.hpp"
+#include "VulkanInstance.hpp"
 
 void Instance::createInstance(std::shared_ptr<Window> window)
 {

@@ -2,7 +2,7 @@
 #include "../pch.h"
 #include "vulkan/vulkan.h"
 #include "VulkanSwapchain.hpp"
-#include "../Device.hpp"
+#include "VulkanDevice.hpp"
 
 class Framebuffer
 {

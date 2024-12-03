@@ -1,8 +1,8 @@
 #pragma once
 #include "../pch.h"
 #include "../Helpers.hpp"
-#include "../Device.hpp"
 #include "VulkanContext.hpp"
+#include "VulkanDevice.hpp"
 
 class Swapchain
 {

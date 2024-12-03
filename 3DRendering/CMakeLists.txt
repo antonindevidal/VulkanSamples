@@ -4,15 +4,15 @@ set(3DRendering_SRC
     src/Engine.cpp
     src/Application.cpp
     src/Window.cpp
-    src/Device.cpp
     src/Renderer.cpp
     src/Helpers.cpp
-    src/Instance.cpp
-    src/VkStructs.cpp
-
+    
+    src/backend/VkStructs.cpp
     src/backend/VulkanSwapchain.cpp
     src/backend/VulkanContext.cpp
     src/backend/VulkanFramebuffer.cpp
+    src/backend/VulkanDevice.cpp
+    src/backend/VulkanInstance.cpp
 )
 
 set(3DRendering_HDR
@@ -20,15 +20,15 @@ set(3DRendering_HDR
     src/Application.h
     src/Window.hpp
     src/pch.h
-    src/Device.hpp
     src/Renderer.hpp
     src/Helpers.cpp
-    src/Instance.hpp
-    src/VkStructs.hpp
 
+    src/backend/VkStructs.hpp
     src/backend/VulkanSwapchain.hpp
     src/backend/VulkanContext.hpp
     src/backend/VulkanFramebuffer.hpp
+    src/backend/VulkanDevice.hpp
+    src/backend/VulkanInstance.hpp
 )
 
 add_custom_target(3DRendering_copy_resources ALL 

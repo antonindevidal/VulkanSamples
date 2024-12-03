@@ -2,8 +2,8 @@
 #include "../pch.h"
 #include <vulkan/vulkan.h>
 
-#include "../Device.hpp"
-#include "../Instance.hpp"
+#include "VulkanDevice.hpp"
+#include "VulkanInstance.hpp"
 
 class Context
 {

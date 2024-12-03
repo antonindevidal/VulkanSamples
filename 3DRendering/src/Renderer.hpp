@@ -1,11 +1,10 @@
 #pragma once
 #include "pch.h"
-#include "VkStructs.hpp"
-#include "Device.hpp"
-#include "Instance.hpp"
+
+#include "backend/VulkanContext.hpp"
+#include "backend/VkStructs.hpp"
 #include "backend/VulkanSwapchain.hpp"
 #include "backend/VulkanFramebuffer.hpp"
-#include "backend/VulkanContext.hpp"
 class Renderer
 {
 private:
@@ -28,8 +27,6 @@ public:
 private:
 	std::shared_ptr<Window> _window;
 	std::shared_ptr<Context> _context;
-
-
 
 	GraphicsPipeline _currentGraphicsPipeline;
 
