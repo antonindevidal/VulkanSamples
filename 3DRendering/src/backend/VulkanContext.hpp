@@ -26,6 +26,7 @@ public:
 	void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 
 	Device::SwapChainSupportDetails querySwapChainSupport();
+	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
 private:
 	Device _device;

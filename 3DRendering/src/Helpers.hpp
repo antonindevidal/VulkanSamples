@@ -1,6 +1,5 @@
 #pragma once 
 #include "pch.h"
-#include "vulkan/vulkan.h"
 
 static std::vector<char> readFile(const std::string& filename) {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
@@ -17,16 +16,3 @@ static std::vector<char> readFile(const std::string& filename) {
 
     return buffer;
 }
-struct QueueFamilyIndices {
-	std::optional<uint32_t> graphicsFamily;
-	std::optional<uint32_t> presentFamily;
-
-	bool isComplete() {
-		return graphicsFamily.has_value() && presentFamily.has_value();
-	}
-};
-
-
-QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
-
-uint32_t findMemoryType(VkPhysicalDevice device, uint32_t typeFilter, VkMemoryPropertyFlags properties);

@@ -15,6 +15,16 @@ public:
 		std::vector<VkPresentModeKHR> presentModes;
 	};
 
+	struct QueueFamilyIndices {
+		std::optional<uint32_t> graphicsFamily;
+		std::optional<uint32_t> presentFamily;
+
+		bool isComplete() {
+			return graphicsFamily.has_value() && presentFamily.has_value();
+		}
+	};
+
+
 public:
 	Device();
 
@@ -25,6 +35,7 @@ public:
 
 	VkDevice getDevice();
 	VkPhysicalDevice getPhysicalDevice();
+	QueueFamilyIndices getQueueFamilyIndices();
 	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
 
 private:
@@ -32,7 +43,7 @@ private:
 
 	VkDevice _device;
 	VkPhysicalDevice _physicalDevice;
-	
+	QueueFamilyIndices _queueFamilyIndices;
 
 	bool checkDeviceExtensionSupport(VkPhysicalDevice device);
 	bool isDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface);
@@ -41,7 +52,5 @@ private:
 	//int rateDeviceSuitability(VkPhysicalDevice device);
 	void createLogicalDevice(VkSurfaceKHR surface);
 
-
-
-
+	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
 };

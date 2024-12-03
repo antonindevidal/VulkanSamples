@@ -80,7 +80,7 @@ void Context::endSingleTimeCommands(VkCommandBuffer commandBuffer) {
 
 void Context::createQueues()
 {
-	QueueFamilyIndices indices = findQueueFamilies(_device.getPhysicalDevice(), _instance.getSurface());
+	Device::QueueFamilyIndices indices = _device.getQueueFamilyIndices();
 
 	vkGetDeviceQueue(_device.getDevice(), indices.graphicsFamily.value(), 0, &_graphicsQueue);
 	vkGetDeviceQueue(_device.getDevice(), indices.presentFamily.value(), 0, &_presentQueue);
@@ -88,12 +88,12 @@ void Context::createQueues()
 
 void Context::createCommandPool()
 {
-	QueueFamilyIndices queueFamilyIndices = findQueueFamilies(_device.getPhysicalDevice(), _instance.getSurface());
+	Device::QueueFamilyIndices indices = _device.getQueueFamilyIndices();
 
 	VkCommandPoolCreateInfo poolInfo{};
 	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 	poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-	poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+	poolInfo.queueFamilyIndex = indices.graphicsFamily.value();
 
 	if (vkCreateCommandPool(_device.getDevice(), &poolInfo, nullptr, &_commandPool) != VK_SUCCESS) {
 		throw std::runtime_error("Error : failed to create command pool!");
@@ -102,4 +102,17 @@ void Context::createCommandPool()
 
 Device::SwapChainSupportDetails Context::querySwapChainSupport() {
 	return _device.querySwapChainSupport(_device.getPhysicalDevice(), _instance.getSurface());
+}
+
+uint32_t Context::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+{
+	VkPhysicalDeviceMemoryProperties memProperties;
+	vkGetPhysicalDeviceMemoryProperties(_device.getPhysicalDevice(), &memProperties);
+	for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+		if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+			return i;
+		}
+	}
+
+	throw std::runtime_error("Error : failed to find suitable memory type!");
 }

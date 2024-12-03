@@ -39,6 +39,11 @@ VkPhysicalDevice Device::getPhysicalDevice()
 	return _physicalDevice;
 }
 
+Device::QueueFamilyIndices Device::getQueueFamilyIndices()
+{
+	return _queueFamilyIndices;
+}
+
 bool Device::checkDeviceExtensionSupport(VkPhysicalDevice device)
 {
 	uint32_t extensionCount;
@@ -99,11 +104,11 @@ void Device::pickPhysicalDevice(VkInstance instance, VkSurfaceKHR surface)
 
 void Device::createLogicalDevice(VkSurfaceKHR surface)
 {
-	QueueFamilyIndices indices = findQueueFamilies(_physicalDevice, surface);
+	_queueFamilyIndices = findQueueFamilies(_physicalDevice, surface);
 	float queuePriority = 1.0f;
 
 	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-	std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
+	std::set<uint32_t> uniqueQueueFamilies = { _queueFamilyIndices.graphicsFamily.value(), _queueFamilyIndices.presentFamily.value() };
 
 	for (uint32_t queueFamily : uniqueQueueFamilies) {
 		VkDeviceQueueCreateInfo queueCreateInfo{};
@@ -136,6 +141,36 @@ void Device::createLogicalDevice(VkSurfaceKHR surface)
 	if (vkCreateDevice(_physicalDevice, &createInfo, nullptr, &_device) != VK_SUCCESS) {
 		throw std::runtime_error("Error: Failed to create logical device!");
 	}
+}
+
+Device::QueueFamilyIndices Device::findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface)
+{
+	QueueFamilyIndices indices{};
+	uint32_t queueFamilyCount = 0;
+	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+
+	std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+	int i = 0;
+	for (const auto& queueFamily : queueFamilies) {
+		if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+			indices.graphicsFamily = i;
+		}
+
+		VkBool32 presentSupport = false;
+		vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
+
+		if (presentSupport) {
+			indices.presentFamily = i;
+		}
+
+		if (indices.isComplete()) {
+			break;
+		}
+		i++;
+	}
+	return indices;
 }
 
 Device::SwapChainSupportDetails Device::querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface) {

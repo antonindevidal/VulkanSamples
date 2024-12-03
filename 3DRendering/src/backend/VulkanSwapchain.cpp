@@ -25,7 +25,7 @@ void Swapchain::create(std::shared_ptr<Context> context, VkRenderPass renderPass
 	createInfo.imageArrayLayers = 1;
 	createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-	QueueFamilyIndices indices = findQueueFamilies(context->getDevice().getPhysicalDevice(), context->getInstance().getSurface());
+	Device::QueueFamilyIndices indices = context->getDevice().getQueueFamilyIndices();
 	uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
 	if (indices.graphicsFamily != indices.presentFamily) {
@@ -155,13 +155,13 @@ void Swapchain::createDepthResources(std::shared_ptr<Context> context)
 {
 	VkFormat depthFormat = findDepthFormat(context->getDevice());
 
-	createImage(context->getDevice(), getWidth(), getHeight(), depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _depthImage, _depthImageMemory);
+	createImage(context, getWidth(), getHeight(), depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _depthImage, _depthImageMemory);
 	_depthImageView = createImageView(context->getDevice(), _depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
 
 	transitionImageLayout(context, _depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 }
 
-void Swapchain::createImage(Device& device, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory) {
+void Swapchain::createImage(std::shared_ptr<Context> context, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory) {
 	VkImageCreateInfo imageInfo{};
 	imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 	imageInfo.imageType = VK_IMAGE_TYPE_2D;
@@ -177,23 +177,23 @@ void Swapchain::createImage(Device& device, uint32_t width, uint32_t height, VkF
 	imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 	imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-	if (vkCreateImage(device.getDevice(), &imageInfo, nullptr, &image) != VK_SUCCESS) {
+	if (vkCreateImage(context->getDevice().getDevice(), &imageInfo, nullptr, &image) != VK_SUCCESS) {
 		throw std::runtime_error("Error : failed to create image!");
 	}
 
 	VkMemoryRequirements memRequirements;
-	vkGetImageMemoryRequirements(device.getDevice(), image, &memRequirements);
+	vkGetImageMemoryRequirements(context->getDevice().getDevice(), image, &memRequirements);
 
 	VkMemoryAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	allocInfo.allocationSize = memRequirements.size;
-	allocInfo.memoryTypeIndex = findMemoryType(device, memRequirements.memoryTypeBits, properties);
+	allocInfo.memoryTypeIndex = context->findMemoryType(memRequirements.memoryTypeBits, properties);
 
-	if (vkAllocateMemory(device.getDevice(), &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
+	if (vkAllocateMemory(context->getDevice().getDevice(), &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
 		throw std::runtime_error("Error : failed to allocate image memory!");
 	}
 
-	vkBindImageMemory(device.getDevice(), image, imageMemory, 0);
+	vkBindImageMemory(context->getDevice().getDevice(), image, imageMemory, 0);
 }
 
 VkImageView Swapchain::createImageView(Device& device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) {
