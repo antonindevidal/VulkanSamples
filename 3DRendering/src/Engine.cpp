@@ -19,18 +19,21 @@ Engine::Engine()
 	//s_Instance = std::make_shared<Engine>(this);
 
 	_window = std::make_shared<Window>();
+	_context = std::make_shared<Context>();
 	_renderer = std::make_shared<Renderer>();
 
 
 	std::string name = "My engine";
 	_window->Create(name);
-	_renderer->createRenderer(_window);
+    _context->create(_window);
+	_renderer->createRenderer(_window,_context);
 }
 
 Engine::~Engine()
 {
 	_renderer->destroy();
-	_window->Destroy();
+    _context->destroy();
+    _window->Destroy();
 }
 
 void Engine::run()
@@ -60,7 +63,8 @@ void Engine::run()
         _window->PollEvents();
 
         // Update
-        auto matrices = createMatrices(_renderer->getSwapchainWidth(), _renderer->getSwapchainHeight());
+        auto size = _window->getFrameBufferSize();
+        auto matrices = createMatrices(size.x, size.y);
         _renderer->updateUniformBuffer<UniformBufferObject>(uniforms, matrices);
 
         // Draw
@@ -80,7 +84,7 @@ void Engine::run()
 
         _renderer->endFrame();
     }
-    _renderer->waitDeviceIdle();
+    _context->waitDeviceIdle();
 
     _renderer->destroyDescriptorPool(pool);
     _renderer->destroyDescriptorSetLayout(layoutText);

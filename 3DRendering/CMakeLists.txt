@@ -9,6 +9,10 @@ set(3DRendering_SRC
     src/Helpers.cpp
     src/Instance.cpp
     src/VkStructs.cpp
+
+    src/backend/VulkanSwapchain.cpp
+    src/backend/VulkanContext.cpp
+    src/backend/VulkanFramebuffer.cpp
 )
 
 set(3DRendering_HDR
@@ -21,6 +25,10 @@ set(3DRendering_HDR
     src/Helpers.cpp
     src/Instance.hpp
     src/VkStructs.hpp
+
+    src/backend/VulkanSwapchain.hpp
+    src/backend/VulkanContext.hpp
+    src/backend/VulkanFramebuffer.hpp
 )
 
 add_custom_target(3DRendering_copy_resources ALL 

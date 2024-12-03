@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "Window.hpp"
 #include "Renderer.hpp"
+#include "backend/VulkanContext.hpp"
 
 // To remove
 const std::vector<Vertex> vertices = {
@@ -58,6 +59,7 @@ public:
 
 private:
 	std::shared_ptr<Window> _window;
+	std::shared_ptr<Context> _context;
 	std::shared_ptr<Renderer> _renderer;
 
 

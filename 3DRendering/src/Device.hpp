@@ -7,30 +7,27 @@
 #include "Helpers.hpp"
 #include "vulkan/vulkan.h"
 #include "Window.hpp"
-#include "VkStructs.hpp"
 
 class Device
 {
-private:
-
+public:
+	struct SwapChainSupportDetails {
+		VkSurfaceCapabilitiesKHR capabilities;
+		std::vector<VkSurfaceFormatKHR> formats;
+		std::vector<VkPresentModeKHR> presentModes;
+	};
 
 public:
 	Device();
 
-	Device(Device&) = delete;
-	Device(Device&&) = delete;
-	void operator=(Device&) = delete;
-	void operator=(Device&&) = delete;
-
 	void init(VkInstance instance, VkSurfaceKHR surface);
 	void destroy();
 
-	void startFrame();
-	void endFrame();
 	void waitDeviceIdle();
 
 	VkDevice getDevice();
 	VkPhysicalDevice getPhysicalDevice();
+	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
 
 private:
 

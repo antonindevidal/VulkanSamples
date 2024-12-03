@@ -3,7 +3,9 @@
 #include "VkStructs.hpp"
 #include "Device.hpp"
 #include "Instance.hpp"
-
+#include "backend/VulkanSwapchain.hpp"
+#include "backend/VulkanFramebuffer.hpp"
+#include "backend/VulkanContext.hpp"
 class Renderer
 {
 private:
@@ -12,39 +14,31 @@ private:
 public:
 	Renderer();
 
-	void createRenderer(std::shared_ptr<Window> window);
+	void createRenderer(std::shared_ptr<Window> window, std::shared_ptr<Context> context);
 	void destroy();
 
 	void startFrame();
 	void endFrame();
 
 	VkCommandBuffer getCommandBuffer();
-	uint32_t getSwapchainWidth();
-	uint32_t getSwapchainHeight();
 
 	Device& getDevice();
 	void waitDeviceIdle();
 
 private:
 	std::shared_ptr<Window> _window;
+	std::shared_ptr<Context> _context;
 
-	Device _device;
-	Instance _instance;
+
 
 	GraphicsPipeline _currentGraphicsPipeline;
 
-
-	VkSwapchainKHR _swapChain;
-	std::vector<VkImage> _swapChainImages;
-	VkFormat _swapChainImageFormat;
-	VkExtent2D _swapChainExtent;
-	std::vector<VkImageView> _swapChainImageViews;
+	Swapchain _swapchain;
 	VkRenderPass _renderPass;
+	Framebuffer _framebuffer;
 
 
-	std::vector<VkFramebuffer> _swapChainFramebuffers;
 
-	VkCommandPool _commandPool;
 	std::vector<VkCommandBuffer> _commandBuffers;
 	std::vector<VkSemaphore> _imageAvailableSemaphores;
 	std::vector<VkSemaphore> _renderFinishedSemaphores;
@@ -52,23 +46,12 @@ private:
 
 	bool _framebufferResized = false;
 
-	VkQueue _graphicsQueue;
-	VkQueue _presentQueue;
 
 	uint32_t _currentFrame = 0;
 	uint32_t _currentImageIndex = 0;
 
 
-
-	VkImage _depthImage;
-	VkDeviceMemory _depthImageMemory;
-	VkImageView _depthImageView;
-
-	void createQueues();
-	void createImageViews();
 	void createRenderPass();
-	void createFramebuffers();
-	void createCommandPool();
 	void createCommandBuffers();
 	void createSyncObjects();
 	VkSampler createTextureSampler();
@@ -85,20 +68,11 @@ private:
 	VkFormat findDepthFormat();
 	bool hasStencilComponent(VkFormat format);
 
-	// Swapchain creation
-	void createSwapChain();
-	void recreateSwapChain();
-	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
-	VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
-	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
-	void cleanupSwapChain();
+
 
 	VkShaderModule createShaderModule(const std::vector<char>& code);
 	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
-
-	VkCommandBuffer beginSingleTimeCommands();
-	void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 
 
 public:
@@ -158,7 +132,7 @@ UniformBuffer Renderer::createUniformBuffer()
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 		createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, buffer._buffers[i], buffer._buffersMemory[i]);
 
-		vkMapMemory(_device.getDevice(), buffer._buffersMemory[i], 0, bufferSize, 0, &buffer._buffersMapped[i]);
+		vkMapMemory(_context->getDevice().getDevice(), buffer._buffersMemory[i], 0, bufferSize, 0, &buffer._buffersMapped[i]);
 	}
 
 	return buffer;
