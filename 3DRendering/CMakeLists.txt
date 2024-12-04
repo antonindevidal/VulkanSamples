@@ -13,6 +13,11 @@ set(3DRendering_SRC
     src/backend/VulkanFramebuffer.cpp
     src/backend/VulkanDevice.cpp
     src/backend/VulkanInstance.cpp
+    src/backend/VulkanTexture.cpp
+    src/backend/VulkanBuffer.cpp
+    src/backend/VulkanVertexBuffer.cpp
+    src/backend/VulkanIndexBuffer.cpp
+    src/backend/VulkanUniformBuffer.cpp
 )
 
 set(3DRendering_HDR
@@ -21,14 +26,21 @@ set(3DRendering_HDR
     src/Window.hpp
     src/pch.h
     src/Renderer.hpp
-    src/Helpers.cpp
+    src/Helpers.hpp
+    src/Components.hpp
 
+    src/backend/VulkanBackend.hpp
     src/backend/VkStructs.hpp
     src/backend/VulkanSwapchain.hpp
     src/backend/VulkanContext.hpp
     src/backend/VulkanFramebuffer.hpp
     src/backend/VulkanDevice.hpp
     src/backend/VulkanInstance.hpp
+    src/backend/VulkanTexture.hpp
+    src/backend/VulkanBuffer.hpp
+    src/backend/VulkanVertexBuffer.hpp
+    src/backend/VulkanIndexBuffer.hpp
+    src/backend/VulkanUniformBuffer.hpp
 )
 
 add_custom_target(3DRendering_copy_resources ALL 

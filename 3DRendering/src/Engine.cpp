@@ -42,13 +42,16 @@ void Engine::run()
     Mesh mesh2 = _renderer->createMesh(vertices2, indices2);
     Mesh mesh3 = _renderer->createMesh(vertices3, indices3);
 
-    Texture texture = _renderer->createTexture("Textures/cat.jpg");
-    Texture texture2 = _renderer->createTexture("Textures/cat2.jpg");
+    Texture texture{};
+    texture.create(_context,"Textures/cat.jpg");
+    Texture texture2;
+    texture2.create(_context, "Textures/cat2.jpg");
 
-    UniformBuffer uniforms = _renderer->createUniformBuffer<UniformBufferObject>();
+    UniformBuffer uniforms;
+    uniforms.create(_context, sizeof(UniformBufferObject));
 
     DescriptorPool pool = _renderer->createDescriptorPool({ {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,1},{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,2} }, 3);
-    DescriptorSetLayout layoutUb = _renderer->createDescriptorSetlayout(uniforms);
+    DescriptorSetLayout layoutUb = _renderer->createDescriptorSetlayoutUb();
     DescriptorSetLayout layoutText = _renderer->createDescriptorSetlayout(texture);
 
     DescriptorSet descriptorSetUb = _renderer->createDescriptorSet(layoutUb, pool, uniforms);
@@ -65,7 +68,7 @@ void Engine::run()
         // Update
         auto size = _window->getFrameBufferSize();
         auto matrices = createMatrices(size.x, size.y);
-        _renderer->updateUniformBuffer<UniformBufferObject>(uniforms, matrices);
+        uniforms.update(_context, matrices, _renderer->getCurrentFrame());
 
         // Draw
         _renderer->startFrame();
@@ -93,9 +96,9 @@ void Engine::run()
     _renderer->destroyGraphicsPipeline(pipeline);
     _renderer->destroyGraphicsPipeline(pipeline2);
 
-    _renderer->destroyUniformBuffer(uniforms);
-    _renderer->destroyTexture(texture);
-    _renderer->destroyTexture(texture2);
+    uniforms.destroy(_context);
+    texture.destroy(_context);
+    texture2.destroy(_context);
     _renderer->destroyMesh(mesh);
     _renderer->destroyMesh(mesh2);
     _renderer->destroyMesh(mesh3);
