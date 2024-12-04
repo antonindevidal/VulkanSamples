@@ -42,25 +42,26 @@ void Engine::run()
     Mesh mesh2 = _renderer->createMesh(vertices2, indices2);
     Mesh mesh3 = _renderer->createMesh(vertices3, indices3);
 
-    Texture texture{};
-    texture.create(_context,"Textures/cat.jpg");
-    Texture texture2;
-    texture2.create(_context, "Textures/cat2.jpg");
-
     UniformBuffer uniforms;
     uniforms.create(_context, sizeof(UniformBufferObject));
 
-    DescriptorPool pool = _renderer->createDescriptorPool({ {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,1},{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,2} }, 3);
-    DescriptorSetLayout layoutUb = _renderer->createDescriptorSetlayoutUb();
-    DescriptorSetLayout layoutText = _renderer->createDescriptorSetlayout(texture);
 
+    DescriptorPool pool = _renderer->createDescriptorPool({ {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,1},{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,2} }, 3);
+    DescriptorSetLayout layoutUb = _renderer->createDescriptorSetlayoutUb(0);
     DescriptorSet descriptorSetUb = _renderer->createDescriptorSet(layoutUb, pool, uniforms);
+
+    Material material = _renderer->createMaterial("Shaders/vert.spv", "Shaders/frag.spv", "Textures/cat.jpg");
+    Material material2 = _renderer->createMaterial("Shaders/vert.spv", "Shaders/frag.spv", "Textures/cat2.jpg");
+
+    /*
+    DescriptorSetLayout layoutText = _renderer->createDescriptorSetlayoutTexture(1);
+
     DescriptorSet descriptorSetText = _renderer->createDescriptorSet(layoutText, pool, texture);
     DescriptorSet descriptorSetText2 = _renderer->createDescriptorSet(layoutText, pool, texture2);
 
     GraphicsPipeline pipeline = _renderer->createGraphicsPipeline("Shaders/vert.spv", "Shaders/frag.spv", { layoutUb,layoutText });
     GraphicsPipeline pipeline2 = _renderer->createGraphicsPipeline("Shaders/vert.spv", "Shaders/colorfrag.spv", { layoutUb });
-
+    */
 
     while (!_window->ShouldClose()) {
         _window->PollEvents();
@@ -72,33 +73,22 @@ void Engine::run()
 
         // Draw
         _renderer->startFrame();
+        _renderer->drawMesh(mesh, material, {descriptorSetUb});
+        _renderer->drawMesh(mesh2, material2, {descriptorSetUb});
 
-        _renderer->bindGraphicsPipeline(pipeline);
-        _renderer->bindDescriptorSet(descriptorSetUb);
-        _renderer->bindDescriptorSet(descriptorSetText, 1);
-        _renderer->drawMesh(mesh);
-
-        _renderer->bindDescriptorSet(descriptorSetText2, 1);
-        _renderer->drawMesh(mesh2);
-
-        _renderer->bindGraphicsPipeline(pipeline2);
-        _renderer->bindDescriptorSet(descriptorSetUb);
-        _renderer->drawMesh(mesh3);
 
         _renderer->endFrame();
     }
     _context->waitDeviceIdle();
 
+    
     _renderer->destroyDescriptorPool(pool);
-    _renderer->destroyDescriptorSetLayout(layoutText);
     _renderer->destroyDescriptorSetLayout(layoutUb);
 
-    _renderer->destroyGraphicsPipeline(pipeline);
-    _renderer->destroyGraphicsPipeline(pipeline2);
-
     uniforms.destroy(_context);
-    texture.destroy(_context);
-    texture2.destroy(_context);
+
+    _renderer->destroyMaterial(material);
+    _renderer->destroyMaterial(material2);
     _renderer->destroyMesh(mesh);
     _renderer->destroyMesh(mesh2);
     _renderer->destroyMesh(mesh3);

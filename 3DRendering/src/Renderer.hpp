@@ -32,7 +32,7 @@ private:
 	Swapchain _swapchain;
 	VkRenderPass _renderPass;
 	Framebuffer _framebuffer;
-
+	DescriptorPool _pool;
 
 
 	std::vector<VkCommandBuffer> _commandBuffers;
@@ -63,35 +63,30 @@ private:
 	VkFormat findDepthFormat();
 	bool hasStencilComponent(VkFormat format);
 
-
-
-	VkShaderModule createShaderModule(const std::vector<char>& code);
 	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
 public:
-	// Graphics pipeline
-	GraphicsPipeline createGraphicsPipeline(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, std::vector<VkDescriptorSetLayout> descriptorSetLayouts);
-	void destroyGraphicsPipeline(GraphicsPipeline graphicsPipeline);
-	void bindGraphicsPipeline(GraphicsPipeline graphicsPipeline);
-
 
 	// Mesh
 	Mesh createMesh(const std::vector<Vertex>& vertices, const std::vector<index_t>& indices);
 	void destroyMesh(Mesh& mesh);
-	void drawMesh(Mesh& mesh);
+	void drawMesh(Mesh& mesh, Material& material, const std::vector<DescriptorSet>& descriptors);
 
+	// Material
+	Material createMaterial(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, const std::string& texturePath);
+	void destroyMaterial(Material& material);
 
 	// Descriptors
 	DescriptorPool createDescriptorPool(std::vector<std::pair<VkDescriptorType,uint32_t>> infos, uint32_t maxSets);
 	void destroyDescriptorPool(DescriptorPool pool);
 
-	DescriptorSetLayout createDescriptorSetlayout(Texture t);
-	DescriptorSetLayout createDescriptorSetlayoutUb();
+	DescriptorSetLayout createDescriptorSetlayoutTexture(uint32_t binding);
+	DescriptorSetLayout createDescriptorSetlayoutUb(uint32_t binding);
 	void destroyDescriptorSetLayout(DescriptorSetLayout layout);
 
 	DescriptorSet createDescriptorSet(DescriptorSetLayout layout, DescriptorPool pool, Texture t);
 	DescriptorSet createDescriptorSet(DescriptorSetLayout layout, DescriptorPool pool, UniformBuffer ub);
 	void destroyDescriptorSet(DescriptorSet descriptorSet);
-	void bindDescriptorSet(DescriptorSet descriptorSet, uint32_t index = 0);
+	void bindDescriptorSet(DescriptorSet descriptorSet, GraphicsPipeline gp, uint32_t index = 0);
 
 };

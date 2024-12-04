@@ -18,6 +18,7 @@ set(3DRendering_SRC
     src/backend/VulkanVertexBuffer.cpp
     src/backend/VulkanIndexBuffer.cpp
     src/backend/VulkanUniformBuffer.cpp
+    src/backend/VulkanGraphicsPipeline.cpp
 )
 
 set(3DRendering_HDR
@@ -41,6 +42,7 @@ set(3DRendering_HDR
     src/backend/VulkanVertexBuffer.hpp
     src/backend/VulkanIndexBuffer.hpp
     src/backend/VulkanUniformBuffer.hpp
+    src/backend/VulkanGraphicsPipeline.hpp
 )
 
 add_custom_target(3DRendering_copy_resources ALL 

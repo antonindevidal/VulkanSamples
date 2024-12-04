@@ -2,17 +2,15 @@
 #include "../pch.h"
 
 using DescriptorPool = VkDescriptorPool;
-using DescriptorSetLayout = VkDescriptorSetLayout;
+struct DescriptorSetLayout
+{
+	VkDescriptorSetLayout _layout;
+	uint32_t _binding;
+};
 
 struct DescriptorSet
 {
 	VkDescriptorSetLayout _descriptorSetLayout;
 	std::vector<VkDescriptorSet> _descriptorSets;
-};
-
-struct GraphicsPipeline
-{
-	VkPipelineLayout _pipelineLayout;
-	VkPipeline _graphicsPipeline;
 };
 
