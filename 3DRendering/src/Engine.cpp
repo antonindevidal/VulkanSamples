@@ -52,16 +52,7 @@ void Engine::run()
 
     Material material = _renderer->createMaterial("Shaders/vert.spv", "Shaders/frag.spv", "Textures/cat.jpg");
     Material material2 = _renderer->createMaterial("Shaders/vert.spv", "Shaders/frag.spv", "Textures/cat2.jpg");
-
-    /*
-    DescriptorSetLayout layoutText = _renderer->createDescriptorSetlayoutTexture(1);
-
-    DescriptorSet descriptorSetText = _renderer->createDescriptorSet(layoutText, pool, texture);
-    DescriptorSet descriptorSetText2 = _renderer->createDescriptorSet(layoutText, pool, texture2);
-
-    GraphicsPipeline pipeline = _renderer->createGraphicsPipeline("Shaders/vert.spv", "Shaders/frag.spv", { layoutUb,layoutText });
-    GraphicsPipeline pipeline2 = _renderer->createGraphicsPipeline("Shaders/vert.spv", "Shaders/colorfrag.spv", { layoutUb });
-    */
+    Material material3 = _renderer->createMaterial("Shaders/vert.spv", "Shaders/colorfrag.spv");
 
     while (!_window->ShouldClose()) {
         _window->PollEvents();
@@ -75,6 +66,7 @@ void Engine::run()
         _renderer->startFrame();
         _renderer->drawMesh(mesh, material, {descriptorSetUb});
         _renderer->drawMesh(mesh2, material2, {descriptorSetUb});
+        _renderer->drawMesh(mesh3, material3, {descriptorSetUb});
 
 
         _renderer->endFrame();
@@ -89,6 +81,7 @@ void Engine::run()
 
     _renderer->destroyMaterial(material);
     _renderer->destroyMaterial(material2);
+    _renderer->destroyMaterial(material3);
     _renderer->destroyMesh(mesh);
     _renderer->destroyMesh(mesh2);
     _renderer->destroyMesh(mesh3);

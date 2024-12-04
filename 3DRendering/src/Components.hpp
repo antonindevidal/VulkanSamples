@@ -17,4 +17,6 @@ struct Material
 	Texture _texture;
 	DescriptorSet _textureDescriptor;
 	DescriptorSetLayout _textureDescriptorLayout;
+
+	bool _hasTexture = false;
 };

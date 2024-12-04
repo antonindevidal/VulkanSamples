@@ -74,6 +74,7 @@ public:
 
 	// Material
 	Material createMaterial(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, const std::string& texturePath);
+	Material createMaterial(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
 	void destroyMaterial(Material& material);
 
 	// Descriptors

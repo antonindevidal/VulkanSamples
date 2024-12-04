@@ -346,7 +346,8 @@ void Renderer::destroyMesh(Mesh& mesh)
 void Renderer::drawMesh(Mesh& mesh, Material& material, const std::vector<DescriptorSet>& descriptors)
 {
 	material._graphicsPipeline.bind(_context, getCommandBuffer());
-	bindDescriptorSet(material._textureDescriptor, material._graphicsPipeline, 1);
+	if(material._hasTexture)
+		bindDescriptorSet(material._textureDescriptor, material._graphicsPipeline, 1);
 
 	for (auto& ds : descriptors)
 	{
@@ -365,6 +366,7 @@ void Renderer::drawMesh(Mesh& mesh, Material& material, const std::vector<Descri
 Material Renderer::createMaterial(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, const std::string& texturePath)
 {
 	Material m;
+	m._hasTexture = true;
 	m._texture.create(_context, texturePath);
 	m._textureDescriptorLayout = createDescriptorSetlayoutTexture(1);
 	DescriptorSetLayout layoutUB = createDescriptorSetlayoutUb(0);
@@ -374,11 +376,24 @@ Material Renderer::createMaterial(const std::string& vertexShaderPath, const std
 	return m;
 }
 
+Material Renderer::createMaterial(const std::string& vertexShaderPath, const std::string& fragmentShaderPath)
+{
+	Material m;
+	m._hasTexture = false;
+	DescriptorSetLayout layoutUB = createDescriptorSetlayoutUb(0);
+	m._graphicsPipeline.create(_context, _swapchain.getWidth(), _swapchain.getHeight(), _swapchain.getExtent(), _renderPass, vertexShaderPath, fragmentShaderPath, { layoutUB._layout });
+	destroyDescriptorSetLayout(layoutUB);
+	return m;
+}
+
 void Renderer::destroyMaterial(Material& material)
 {
 	material._graphicsPipeline.destroy(_context);
-	material._texture.destroy(_context);
-	destroyDescriptorSetLayout(material._textureDescriptorLayout);
+	if (material._hasTexture)
+	{
+		material._texture.destroy(_context);
+		destroyDescriptorSetLayout(material._textureDescriptorLayout);
+	}
 }
 
 DescriptorPool Renderer::createDescriptorPool(std::vector<std::pair<VkDescriptorType, uint32_t>> infos, uint32_t maxSets)
