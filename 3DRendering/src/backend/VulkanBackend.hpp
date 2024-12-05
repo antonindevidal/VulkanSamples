@@ -10,3 +10,4 @@
 #include "VulkanVertexBuffer.hpp"
 #include "VulkanUniformBuffer.hpp"
 #include "VulkanGraphicsPipeline.hpp"
+#include "VulkanDescriptorSetLayout.hpp"

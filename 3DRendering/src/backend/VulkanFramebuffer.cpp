@@ -1,8 +1,7 @@
 #include "VulkanFramebuffer.hpp"
 
-void Framebuffer::create(Device& device, Swapchain& swapchain, VkRenderPass renderPass )
+void Framebuffer::create(std::shared_ptr<Context> context, Swapchain& swapchain, VkRenderPass renderPass )
 {
-	
 	_swapChainFramebuffers.resize(swapchain._swapChainImageViews.size());
 	for (size_t i = 0; i < swapchain._swapChainImageViews.size(); i++) {
 		std::array<VkImageView, 2> attachments = {
@@ -20,17 +19,23 @@ void Framebuffer::create(Device& device, Swapchain& swapchain, VkRenderPass rend
 		framebufferInfo.height = swapchain.getHeight();
 		framebufferInfo.layers = 1;
 
-		if (vkCreateFramebuffer(device.getDevice(), &framebufferInfo, nullptr, &_swapChainFramebuffers[i]) != VK_SUCCESS) {
+		if (vkCreateFramebuffer(context->getDevice().getDevice(), &framebufferInfo, nullptr, &_swapChainFramebuffers[i]) != VK_SUCCESS) {
 			throw std::runtime_error("Error : failed to create framebuffer!");
 		}
 	}
 }
 
-void Framebuffer::destroy(Device& device)
+void Framebuffer::destroy(std::shared_ptr<Context> context)
 {
 	for (size_t i = 0; i < _swapChainFramebuffers.size(); i++) {
-		vkDestroyFramebuffer(device.getDevice(), _swapChainFramebuffers[i], nullptr);
+		vkDestroyFramebuffer(context->getDevice().getDevice(), _swapChainFramebuffers[i], nullptr);
 	}
+}
+
+void Framebuffer::recreate(std::shared_ptr<Context> context, Swapchain& swapchain, VkRenderPass renderPass)
+{
+	destroy(context);
+	create(context, swapchain, renderPass);
 }
 
 VkFramebuffer Framebuffer::getFramebuffer(uint32_t index)

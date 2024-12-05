@@ -81,9 +81,6 @@ public:
 	DescriptorPool createDescriptorPool(std::vector<std::pair<VkDescriptorType,uint32_t>> infos, uint32_t maxSets);
 	void destroyDescriptorPool(DescriptorPool pool);
 
-	DescriptorSetLayout createDescriptorSetlayoutTexture(uint32_t binding);
-	DescriptorSetLayout createDescriptorSetlayoutUb(uint32_t binding);
-	void destroyDescriptorSetLayout(DescriptorSetLayout layout);
 
 	DescriptorSet createDescriptorSet(DescriptorSetLayout layout, DescriptorPool pool, Texture t);
 	DescriptorSet createDescriptorSet(DescriptorSetLayout layout, DescriptorPool pool, UniformBuffer ub);

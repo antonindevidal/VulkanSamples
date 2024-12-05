@@ -17,7 +17,7 @@ void Renderer::createRenderer(std::shared_ptr<Window> window, std::shared_ptr<Co
 	auto size = window->getFrameBufferSize();
 	_swapchain.create(_context, _renderPass, size.x, size.y);
 	createRenderPass();
-	_framebuffer.create(context->getDevice(), _swapchain, _renderPass);
+	_framebuffer.create(context, _swapchain, _renderPass);
 	createCommandBuffers();
 	createSyncObjects();
 	_pool = createDescriptorPool({ {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,50},{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,50} }, 100);
@@ -28,7 +28,7 @@ void Renderer::destroy()
 	destroyDescriptorPool(_pool);
 	_swapchain.cleanup(_context->getDevice());
 
-	_framebuffer.destroy(_context->getDevice());
+	_framebuffer.destroy(_context);
 	vkDestroyRenderPass(_context->getDevice().getDevice(), _renderPass, nullptr);
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
@@ -66,8 +66,8 @@ void Renderer::startFrame()
 		}
 		vkDeviceWaitIdle(_context->getDevice().getDevice());
 		auto sCsize = _window->getFrameBufferSize();
-		_framebuffer.destroy(_context->getDevice());
 		_swapchain.recreate(_context, _renderPass, sCsize.x, sCsize.y);
+		_framebuffer.recreate(_context, _swapchain, _renderPass);
 		return;
 	}
 	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
@@ -75,7 +75,6 @@ void Renderer::startFrame()
 	}
 
 	vkResetFences(_context->getDevice().getDevice(), 1, &_inFlightFences[_currentFrame]);
-
 
 	vkResetCommandBuffer(_commandBuffers[_currentFrame], 0);
 	startRecording(_commandBuffers[_currentFrame], _currentImageIndex);
@@ -121,9 +120,10 @@ void Renderer::endFrame()
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || _framebufferResized) {
 		_framebufferResized = false;
-		_framebuffer.destroy(_context->getDevice());
+		vkDeviceWaitIdle(_context->getDevice().getDevice());
 		auto size = _window->getFrameBufferSize();
 		_swapchain.recreate(_context, _renderPass, size.x, size.y);
+		_framebuffer.recreate(_context, _swapchain, _renderPass);
 	}
 	else if (result != VK_SUCCESS) {
 		throw std::runtime_error("failed to present swap chain image!");
@@ -131,8 +131,6 @@ void Renderer::endFrame()
 
 	_currentFrame = (_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
-
-
 
 void Renderer::createRenderPass()
 {
@@ -192,8 +190,6 @@ void Renderer::createRenderPass()
 		throw std::runtime_error("Error : failed to create render pass!");
 	}
 }
-
-
 
 void Renderer::createCommandBuffers()
 {
@@ -368,11 +364,12 @@ Material Renderer::createMaterial(const std::string& vertexShaderPath, const std
 	Material m;
 	m._hasTexture = true;
 	m._texture.create(_context, texturePath);
-	m._textureDescriptorLayout = createDescriptorSetlayoutTexture(1);
-	DescriptorSetLayout layoutUB = createDescriptorSetlayoutUb(0);
+	m._textureDescriptorLayout.createTextureLayout(_context, 1);
+	DescriptorSetLayout layoutUB;
+	layoutUB.createUniformBufferLayout(_context,0);
 	m._textureDescriptor = createDescriptorSet(m._textureDescriptorLayout, _pool, m._texture);
 	m._graphicsPipeline.create(_context, _swapchain.getWidth(), _swapchain.getHeight(), _swapchain.getExtent(), _renderPass, vertexShaderPath, fragmentShaderPath, { layoutUB._layout, m._textureDescriptorLayout._layout });
-	destroyDescriptorSetLayout(layoutUB);
+	layoutUB.destroy(_context);
 	return m;
 }
 
@@ -380,9 +377,10 @@ Material Renderer::createMaterial(const std::string& vertexShaderPath, const std
 {
 	Material m;
 	m._hasTexture = false;
-	DescriptorSetLayout layoutUB = createDescriptorSetlayoutUb(0);
+	DescriptorSetLayout layoutUB;
+	layoutUB.createUniformBufferLayout(_context, 0);
 	m._graphicsPipeline.create(_context, _swapchain.getWidth(), _swapchain.getHeight(), _swapchain.getExtent(), _renderPass, vertexShaderPath, fragmentShaderPath, { layoutUB._layout });
-	destroyDescriptorSetLayout(layoutUB);
+	layoutUB.destroy(_context);
 	return m;
 }
 
@@ -392,7 +390,7 @@ void Renderer::destroyMaterial(Material& material)
 	if (material._hasTexture)
 	{
 		material._texture.destroy(_context);
-		destroyDescriptorSetLayout(material._textureDescriptorLayout);
+		material._textureDescriptorLayout.destroy(_context);
 	}
 }
 
@@ -424,61 +422,6 @@ DescriptorPool Renderer::createDescriptorPool(std::vector<std::pair<VkDescriptor
 void Renderer::destroyDescriptorPool(DescriptorPool pool)
 {
 	vkDestroyDescriptorPool(_context->getDevice().getDevice(), pool, nullptr);
-}
-
-DescriptorSetLayout Renderer::createDescriptorSetlayoutTexture(uint32_t binding)
-{
-	DescriptorSetLayout layout;
-	layout._binding = binding;
-
-	VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-	samplerLayoutBinding.binding = binding;
-	samplerLayoutBinding.descriptorCount = 1;
-	samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	samplerLayoutBinding.pImmutableSamplers = nullptr;
-	samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
-	std::array<VkDescriptorSetLayoutBinding, 1> bindings = { samplerLayoutBinding };
-	VkDescriptorSetLayoutCreateInfo layoutInfo{};
-	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());;
-	layoutInfo.pBindings = bindings.data();
-
-	if (vkCreateDescriptorSetLayout(_context->getDevice().getDevice(), &layoutInfo, nullptr, &layout._layout) != VK_SUCCESS) {
-		throw std::runtime_error("Error : failed to create descriptor set layout!");
-	}
-
-	return layout;
-}
-
-DescriptorSetLayout Renderer::createDescriptorSetlayoutUb(uint32_t binding)
-{
-	DescriptorSetLayout layout;
-	layout._binding = binding;
-
-	VkDescriptorSetLayoutBinding uboLayoutBinding{};
-	uboLayoutBinding.binding = binding;
-	uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	uboLayoutBinding.descriptorCount = 1;
-	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-	uboLayoutBinding.pImmutableSamplers = nullptr; // Optional
-
-	std::array<VkDescriptorSetLayoutBinding, 1> bindings = { uboLayoutBinding };
-	VkDescriptorSetLayoutCreateInfo layoutInfo{};
-	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());;
-	layoutInfo.pBindings = bindings.data();
-
-	if (vkCreateDescriptorSetLayout(_context->getDevice().getDevice(), &layoutInfo, nullptr, &layout._layout) != VK_SUCCESS) {
-		throw std::runtime_error("Error : failed to create descriptor set layout!");
-	}
-
-	return layout;
-}
-
-void Renderer::destroyDescriptorSetLayout(DescriptorSetLayout layout)
-{
-	vkDestroyDescriptorSetLayout(_context->getDevice().getDevice(), layout._layout, nullptr);
 }
 
 DescriptorSet Renderer::createDescriptorSet(DescriptorSetLayout layout, DescriptorPool pool, Texture t)
@@ -565,9 +508,9 @@ void Renderer::destroyDescriptorSet(DescriptorSet descriptorSet)
 
 void Renderer::bindDescriptorSet(DescriptorSet descriptorSet, GraphicsPipeline gp, uint32_t index)
 {
-	if (_currentGraphicsPipeline._graphicsPipeline = VK_NULL_HANDLE)
+	/*if (_currentGraphicsPipeline._graphicsPipeline = VK_NULL_HANDLE)
 	{
 		throw std::runtime_error("Error : Can't bind Descriptor set if no graphcis pipeline bound !");
-	}
+	}*/
 	vkCmdBindDescriptorSets(getCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, gp._pipelineLayout, index, 1, &(descriptorSet._descriptorSets[_currentFrame]), 0, nullptr);
 }

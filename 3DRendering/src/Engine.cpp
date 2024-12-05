@@ -47,7 +47,8 @@ void Engine::run()
 
 
     DescriptorPool pool = _renderer->createDescriptorPool({ {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,1},{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,2} }, 3);
-    DescriptorSetLayout layoutUb = _renderer->createDescriptorSetlayoutUb(0);
+    DescriptorSetLayout layoutUb;
+    layoutUb.createUniformBufferLayout(_context, 0);
     DescriptorSet descriptorSetUb = _renderer->createDescriptorSet(layoutUb, pool, uniforms);
 
     Material material = _renderer->createMaterial("Shaders/vert.spv", "Shaders/frag.spv", "Textures/cat.jpg");
@@ -75,7 +76,7 @@ void Engine::run()
 
     
     _renderer->destroyDescriptorPool(pool);
-    _renderer->destroyDescriptorSetLayout(layoutUb);
+    layoutUb.destroy(_context);
 
     uniforms.destroy(_context);
 

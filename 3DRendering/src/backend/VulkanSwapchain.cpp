@@ -62,7 +62,6 @@ void Swapchain::recreate(std::shared_ptr<Context> context, VkRenderPass renderPa
 
 void Swapchain::cleanup(Device& device)
 {
-
 	vkDestroyImageView(device.getDevice(), _depthImageView, nullptr);
 	vkDestroyImage(device.getDevice(), _depthImage, nullptr);
 	vkFreeMemory(device.getDevice(), _depthImageMemory, nullptr);
