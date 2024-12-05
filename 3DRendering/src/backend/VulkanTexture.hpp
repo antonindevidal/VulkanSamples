@@ -2,7 +2,6 @@
 #include "../pch.h"
 #include "VulkanContext.hpp"
 #include "VulkanBuffer.hpp"
-#include "VkStructs.hpp"
 
 struct Texture
 {

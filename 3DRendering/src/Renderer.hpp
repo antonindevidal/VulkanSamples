@@ -5,13 +5,11 @@
 #include "Components.hpp"
 class Renderer
 {
-private:
-
 
 public:
 	Renderer();
 
-	void createRenderer(std::shared_ptr<Window> window, std::shared_ptr<Context> context);
+	void create(std::shared_ptr<Window> window, std::shared_ptr<Context> context);
 	void destroy();
 
 	void startFrame();
@@ -76,15 +74,5 @@ public:
 	Material createMaterial(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, const std::string& texturePath);
 	Material createMaterial(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
 	void destroyMaterial(Material& material);
-
-	// Descriptors
-	DescriptorPool createDescriptorPool(std::vector<std::pair<VkDescriptorType,uint32_t>> infos, uint32_t maxSets);
-	void destroyDescriptorPool(DescriptorPool pool);
-
-
-	DescriptorSet createDescriptorSet(DescriptorSetLayout layout, DescriptorPool pool, Texture t);
-	DescriptorSet createDescriptorSet(DescriptorSetLayout layout, DescriptorPool pool, UniformBuffer ub);
-	void destroyDescriptorSet(DescriptorSet descriptorSet);
-	void bindDescriptorSet(DescriptorSet descriptorSet, GraphicsPipeline gp, uint32_t index = 0);
 
 };

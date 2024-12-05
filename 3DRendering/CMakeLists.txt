@@ -7,7 +7,6 @@ set(3DRendering_SRC
     src/Renderer.cpp
     src/Helpers.cpp
     
-    src/backend/VkStructs.cpp
     src/backend/VulkanSwapchain.cpp
     src/backend/VulkanContext.cpp
     src/backend/VulkanFramebuffer.cpp
@@ -20,6 +19,8 @@ set(3DRendering_SRC
     src/backend/VulkanUniformBuffer.cpp
     src/backend/VulkanGraphicsPipeline.cpp
     src/backend/VulkanDescriptorSetLayout.cpp
+    src/backend/VulkanDescriptorSet.cpp
+    src/backend/VulkanDescriptorPool.cpp
 )
 
 set(3DRendering_HDR
@@ -32,7 +33,6 @@ set(3DRendering_HDR
     src/Components.hpp
 
     src/backend/VulkanBackend.hpp
-    src/backend/VkStructs.hpp
     src/backend/VulkanSwapchain.hpp
     src/backend/VulkanContext.hpp
     src/backend/VulkanFramebuffer.hpp
@@ -45,6 +45,8 @@ set(3DRendering_HDR
     src/backend/VulkanUniformBuffer.hpp
     src/backend/VulkanGraphicsPipeline.hpp
     src/backend/VulkanDescriptorSetLayout.hpp
+    src/backend/VulkanDescriptorSet.hpp
+    src/backend/VulkanDescriptorPool.hpp
 )
 
 add_custom_target(3DRendering_copy_resources ALL 

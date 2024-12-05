@@ -26,7 +26,7 @@ Engine::Engine()
 	std::string name = "My engine";
 	_window->Create(name);
     _context->create(_window);
-	_renderer->createRenderer(_window,_context);
+	_renderer->create(_window,_context);
 }
 
 Engine::~Engine()
@@ -46,10 +46,12 @@ void Engine::run()
     uniforms.create(_context, sizeof(UniformBufferObject));
 
 
-    DescriptorPool pool = _renderer->createDescriptorPool({ {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,1},{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,2} }, 3);
+    DescriptorPool pool;
+    pool.create(_context, { {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,1},{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,2} }, 3);
     DescriptorSetLayout layoutUb;
     layoutUb.createUniformBufferLayout(_context, 0);
-    DescriptorSet descriptorSetUb = _renderer->createDescriptorSet(layoutUb, pool, uniforms);
+    DescriptorSet descriptorSetUb;
+    descriptorSetUb.createDescriptorSetUniformBuffer(_context, layoutUb, pool, uniforms);
 
     Material material = _renderer->createMaterial("Shaders/vert.spv", "Shaders/frag.spv", "Textures/cat.jpg");
     Material material2 = _renderer->createMaterial("Shaders/vert.spv", "Shaders/frag.spv", "Textures/cat2.jpg");
@@ -65,19 +67,18 @@ void Engine::run()
 
         // Draw
         _renderer->startFrame();
+
         _renderer->drawMesh(mesh, material, {descriptorSetUb});
         _renderer->drawMesh(mesh2, material2, {descriptorSetUb});
         _renderer->drawMesh(mesh3, material3, {descriptorSetUb});
-
 
         _renderer->endFrame();
     }
     _context->waitDeviceIdle();
 
     
-    _renderer->destroyDescriptorPool(pool);
+    pool.destroy(_context);
     layoutUb.destroy(_context);
-
     uniforms.destroy(_context);
 
     _renderer->destroyMaterial(material);

@@ -1,7 +1,6 @@
 #pragma once
 #include "../pch.h"
 #include "VulkanContext.hpp"
-#include "VulkanGraphicsPipeline.hpp"
 
 struct DescriptorSetLayout
 {

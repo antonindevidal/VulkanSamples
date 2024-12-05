@@ -11,3 +11,5 @@
 #include "VulkanUniformBuffer.hpp"
 #include "VulkanGraphicsPipeline.hpp"
 #include "VulkanDescriptorSetLayout.hpp"
+#include "VulkanDescriptorSet.hpp"
+#include "VulkanDescriptorPool.hpp"
