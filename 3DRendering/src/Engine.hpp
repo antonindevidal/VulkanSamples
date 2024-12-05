@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "Window.hpp"
 #include "Renderer.hpp"
+#include "Logger.hpp"
 #include "backend/VulkanBackend.hpp"
 
 // To remove

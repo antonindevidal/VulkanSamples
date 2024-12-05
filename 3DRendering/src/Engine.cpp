@@ -16,7 +16,11 @@ UniformBufferObject createMatrices(int width, int height)
 }
 Engine::Engine()
 {
-	//s_Instance = std::make_shared<Engine>(this);
+    if (s_Instance != nullptr)
+    {
+        LOG_ERROR("Instance of engine already exits !");
+    }
+	s_Instance = std::make_shared<Engine>(this);
 
 	_window = std::make_shared<Window>();
 	_context = std::make_shared<Context>();

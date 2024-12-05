@@ -6,6 +6,7 @@ set(3DRendering_SRC
     src/Window.cpp
     src/Renderer.cpp
     src/Helpers.cpp
+    src/Logger.cpp
     
     src/backend/VulkanSwapchain.cpp
     src/backend/VulkanContext.cpp
@@ -31,6 +32,7 @@ set(3DRendering_HDR
     src/Renderer.hpp
     src/Helpers.hpp
     src/Components.hpp
+    src/Logger.hpp
 
     src/backend/VulkanBackend.hpp
     src/backend/VulkanSwapchain.hpp
