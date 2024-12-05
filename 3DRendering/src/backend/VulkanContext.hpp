@@ -26,7 +26,10 @@ public:
 	void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 
 	Device::SwapChainSupportDetails querySwapChainSupport();
+
 	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+	VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+	VkFormat findDepthFormat();
 
 private:
 	Device _device;

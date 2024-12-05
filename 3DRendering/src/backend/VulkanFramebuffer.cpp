@@ -6,7 +6,7 @@ void Framebuffer::create(std::shared_ptr<Context> context, Swapchain& swapchain,
 	for (size_t i = 0; i < swapchain._swapChainImageViews.size(); i++) {
 		std::array<VkImageView, 2> attachments = {
 			swapchain._swapChainImageViews[i],
-			swapchain._depthImageView
+			swapchain._depthResource._imageView
 		};
 
 		VkFramebufferCreateInfo framebufferInfo{};

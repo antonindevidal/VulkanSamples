@@ -34,7 +34,8 @@ void Texture::create(std::shared_ptr<Context> context, const std::string path)
 
 void Texture::destroy(std::shared_ptr<Context> context)
 {
-	vkDestroySampler(context->getDevice().getDevice(), _sampler, nullptr);
+	if(_sampler != VK_NULL_HANDLE)
+		vkDestroySampler(context->getDevice().getDevice(), _sampler, nullptr);
 	vkDestroyImageView(context->getDevice().getDevice(), _imageView, nullptr);
 	vkDestroyImage(context->getDevice().getDevice(), _image, nullptr);
 	vkFreeMemory(context->getDevice().getDevice(), _imageMemory, nullptr);

@@ -5,10 +5,10 @@
 
 struct Texture
 {
-	VkImage _image;
-	VkDeviceMemory _imageMemory;
-	VkImageView _imageView;
-	VkSampler _sampler;
+	VkImage _image = VK_NULL_HANDLE;
+	VkDeviceMemory _imageMemory = VK_NULL_HANDLE;
+	VkImageView _imageView = VK_NULL_HANDLE;
+	VkSampler _sampler = VK_NULL_HANDLE;
 
 	void create(std::shared_ptr<Context> context, const std::string path);
 	void destroy(std::shared_ptr<Context> context);
