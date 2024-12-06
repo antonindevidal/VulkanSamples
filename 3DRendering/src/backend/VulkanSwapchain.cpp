@@ -44,6 +44,7 @@ void Swapchain::create(std::shared_ptr<Context> context, VkRenderPass renderPass
 	createInfo.clipped = VK_TRUE;
 
 	if (vkCreateSwapchainKHR(context->getDevice().getDevice(), &createInfo, nullptr, &_swapChain) != VK_SUCCESS) {
+		LOG_ERROR("VulkanSwapchain, failed to create swap chain !");
 		throw std::runtime_error("Error: Failed to create swap chain!");
 	}
 
@@ -155,6 +156,7 @@ void Swapchain::createImageViews(Device& device)
 		viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 
 		if (vkCreateImageView(device.getDevice(), &viewInfo, nullptr, &_swapChainImageViews[i]) != VK_SUCCESS) {
+			LOG_ERROR("VulkanSwapchain, failed to create texture image view !");
 			throw std::runtime_error("Error : failed to create texture image view!");
 		}
 	}

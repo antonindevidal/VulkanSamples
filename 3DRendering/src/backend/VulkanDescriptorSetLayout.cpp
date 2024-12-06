@@ -18,6 +18,7 @@ void DescriptorSetLayout::createUniformBufferLayout(std::shared_ptr<Context> con
 	layoutInfo.pBindings = bindings.data();
 
 	if (vkCreateDescriptorSetLayout(context->getDevice().getDevice(), &layoutInfo, nullptr, &_layout) != VK_SUCCESS) {
+		LOG_ERROR("VulkanDescriptorSetLayout, failed to allocate descriptor set layout !");
 		throw std::runtime_error("Error : failed to create descriptor set layout!");
 	}
 }
@@ -40,6 +41,7 @@ void DescriptorSetLayout::createTextureLayout(std::shared_ptr<Context> context, 
 	layoutInfo.pBindings = bindings.data();
 
 	if (vkCreateDescriptorSetLayout(context->getDevice().getDevice(), &layoutInfo, nullptr, &_layout) != VK_SUCCESS) {
+		LOG_ERROR("VulkanDescriptorSetLayout, failed to allocate descriptor set layout !");
 		throw std::runtime_error("Error : failed to create descriptor set layout!");
 	}
 }

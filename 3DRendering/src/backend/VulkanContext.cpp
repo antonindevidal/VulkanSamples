@@ -6,11 +6,11 @@ void Context::create(std::shared_ptr<Window> window)
 	_device.init(_instance.getInstance(), _instance.getSurface());
 	createQueues();
 	createCommandPool();
+	LOG_INFO("Context created successfully !");
 }
 
 void Context::destroy()
 {
-
 	_device.destroy();
 	_instance.destroyInstance();
 }
@@ -96,7 +96,8 @@ void Context::createCommandPool()
 	poolInfo.queueFamilyIndex = indices.graphicsFamily.value();
 
 	if (vkCreateCommandPool(_device.getDevice(), &poolInfo, nullptr, &_commandPool) != VK_SUCCESS) {
-		throw std::runtime_error("Error : failed to create command pool!");
+		LOG_ERROR("VulkanContext, failed to create command pool !");
+		throw std::runtime_error("VulkanContext : failed to create command pool!");
 	}
 }
 
@@ -113,7 +114,7 @@ uint32_t Context::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags prop
 			return i;
 		}
 	}
-
+	LOG_ERROR("VulkanContext, failed to find suitable memory type !");
 	throw std::runtime_error("Error : failed to find suitable memory type!");
 }
 
@@ -130,7 +131,8 @@ VkFormat Context::findSupportedFormat(const std::vector<VkFormat>& candidates, V
 			return format;
 		}
 	}
-	throw std::runtime_error("Error : failed to find supported format!");
+	LOG_ERROR("VulkanContext, failed to find supported format !");
+	throw std::runtime_error("Error : failed to find supported format !");
 }
 
 VkFormat Context::findDepthFormat()

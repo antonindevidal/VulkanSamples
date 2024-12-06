@@ -84,6 +84,7 @@ void Device::pickPhysicalDevice(VkInstance instance, VkSurfaceKHR surface)
 	vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
 	if (deviceCount == 0) {
+		LOG_ERROR("VulkanDevice, failed to find GPUs with Vulkan support !");
 		throw std::runtime_error("Error: Failed to find GPUs with Vulkan support!");
 	}
 
@@ -98,6 +99,7 @@ void Device::pickPhysicalDevice(VkInstance instance, VkSurfaceKHR surface)
 	}
 
 	if (_physicalDevice == VK_NULL_HANDLE) {
+		LOG_ERROR("VulkanDevice, failed to find a suitable GPU !");
 		throw std::runtime_error("failed to find a suitable GPU!");
 	}
 }
@@ -139,6 +141,7 @@ void Device::createLogicalDevice(VkSurfaceKHR surface)
 	}
 
 	if (vkCreateDevice(_physicalDevice, &createInfo, nullptr, &_device) != VK_SUCCESS) {
+		LOG_ERROR("VulkanDevice, failed to create logical device !");
 		throw std::runtime_error("Error: Failed to create logical device!");
 	}
 }
@@ -196,6 +199,3 @@ Device::SwapChainSupportDetails Device::querySwapChainSupport(VkPhysicalDevice d
 	}
 	return details;
 }
-
-
-

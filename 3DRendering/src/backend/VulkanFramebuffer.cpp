@@ -20,6 +20,7 @@ void Framebuffer::create(std::shared_ptr<Context> context, Swapchain& swapchain,
 		framebufferInfo.layers = 1;
 
 		if (vkCreateFramebuffer(context->getDevice().getDevice(), &framebufferInfo, nullptr, &_swapChainFramebuffers[i]) != VK_SUCCESS) {
+			LOG_ERROR("VulkanFramebuffer, failed to create framebuffer !");
 			throw std::runtime_error("Error : failed to create framebuffer!");
 		}
 	}

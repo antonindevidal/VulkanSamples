@@ -11,6 +11,7 @@ void DescriptorSet::createDescriptorSetTexture(std::shared_ptr<Context> context,
 
 	_descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
 	if (vkAllocateDescriptorSets(context->getDevice().getDevice(), &allocInfo, _descriptorSets.data()) != VK_SUCCESS) {
+		LOG_ERROR("VulkanDescriptorSet, failed to allocate descriptor set !");
 		throw std::runtime_error("Error : failed to allocate descriptor sets!");
 	}
 
@@ -42,6 +43,7 @@ void DescriptorSet::createDescriptorSetUniformBuffer(std::shared_ptr<Context> co
 
 	_descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
 	if (vkAllocateDescriptorSets(context->getDevice().getDevice(), &allocInfo, _descriptorSets.data()) != VK_SUCCESS) {
+		LOG_ERROR("VulkanDescriptorSet, failed to allocate descriptor set !");
 		throw std::runtime_error("Error : failed to allocate descriptor sets!");
 	}
 

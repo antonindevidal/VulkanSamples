@@ -1,9 +1,8 @@
 #pragma once
 #define VK_USE_PLATFORM_WIN32_KHR
-#include <cstring>
+#include <vulkan/vulkan.h>
 #include "../pch.h"
 #include "../Helpers.hpp"
-#include "vulkan/vulkan.h"
 #include "../Window.hpp"
 
 class Device
@@ -24,7 +23,6 @@ public:
 		}
 	};
 
-
 public:
 	Device();
 
@@ -39,8 +37,6 @@ public:
 	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
 
 private:
-
-
 	VkDevice _device;
 	VkPhysicalDevice _physicalDevice;
 	QueueFamilyIndices _queueFamilyIndices;
@@ -49,7 +45,6 @@ private:
 	bool isDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface);
 
 	void pickPhysicalDevice(VkInstance instance, VkSurfaceKHR surface);
-	//int rateDeviceSuitability(VkPhysicalDevice device);
 	void createLogicalDevice(VkSurfaceKHR surface);
 
 	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);

@@ -1,7 +1,5 @@
 #include "Window.hpp"
 
-#include <stdexcept>
-
 std::vector<Window::FrameBufferResizeCallback> Window::_frameBufferResizeCallbacks = {};
 
 Window::Window() :
@@ -13,13 +11,19 @@ Window::Window() :
 void Window::Create(std::string& name)
 {
 	if (!glfwInit())
-		throw std::runtime_error("Error initializing GLFW");
+	{
+		LOG_ERROR("Error initializing GLFW !");
+		throw std::runtime_error("Error initializing GLFW !");
+	}
 
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	_window = glfwCreateWindow(_size.x, _size.y, name.c_str(), nullptr, nullptr);
 
 	if (!_window)
-		throw std::runtime_error("Error Creating Window");
+	{
+		LOG_ERROR("Error Creating Window !");
+		throw std::runtime_error("Error Creating Window !");
+	}
 
 	glfwMakeContextCurrent(_window);
 	glfwSetFramebufferSizeCallback(_window, [](GLFWwindow* window, int width, int height){ 
@@ -29,6 +33,7 @@ void Window::Create(std::string& name)
 		}
 	});
 	glfwSwapInterval(1);
+	LOG_INFO("Window created successfully !");
 }
 
 bool Window::ShouldClose()

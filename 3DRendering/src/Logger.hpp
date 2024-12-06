@@ -1,7 +1,7 @@
 #pragma once
 #include "pch.h"
 
-static class Logger
+class Logger
 {
 public:
 	enum class Level

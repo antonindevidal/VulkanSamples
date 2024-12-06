@@ -1,4 +1,7 @@
 #include "Engine.hpp"
+
+Engine* Engine::s_Instance;
+
 UniformBufferObject createMatrices(int width, int height)
 {
     static auto startTime = std::chrono::high_resolution_clock::now();
@@ -16,11 +19,7 @@ UniformBufferObject createMatrices(int width, int height)
 }
 Engine::Engine()
 {
-    if (s_Instance != nullptr)
-    {
-        LOG_ERROR("Instance of engine already exits !");
-    }
-	s_Instance = std::make_shared<Engine>(this);
+	s_Instance = this;
 
 	_window = std::make_shared<Window>();
 	_context = std::make_shared<Context>();

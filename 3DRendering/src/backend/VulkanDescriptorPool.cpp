@@ -18,6 +18,7 @@ void DescriptorPool::create(std::shared_ptr<Context> context, std::vector<std::p
 	poolInfo.maxSets = maxSets * static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 
 	if (vkCreateDescriptorPool(context->getDevice().getDevice(), &poolInfo, nullptr, &_pool) != VK_SUCCESS) {
+		LOG_ERROR("VulkanDescriptorPool, failed to create descriptor pool !");
 		throw std::runtime_error("Error : failed to create descriptor pool!");
 	}
 }

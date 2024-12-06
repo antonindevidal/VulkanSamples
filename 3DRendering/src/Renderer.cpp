@@ -21,6 +21,7 @@ void Renderer::create(std::shared_ptr<Window> window, std::shared_ptr<Context> c
 	createCommandBuffers();
 	createSyncObjects();
 	_pool.create(_context, { {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,50},{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,50} }, 100);
+	LOG_INFO("Renderer created successfully !");
 }
 
 void Renderer::destroy()
@@ -70,6 +71,7 @@ void Renderer::startFrame()
 		return;
 	}
 	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+		LOG_ERROR("Renderer, failed to acquire swap chain image !");
 		throw std::runtime_error("failed to acquire swap chain image!");
 	}
 
@@ -99,6 +101,7 @@ void Renderer::endFrame()
 	submitInfo.pSignalSemaphores = signalSemaphores;
 
 	if (vkQueueSubmit(_context->getGraphicsQueue(), 1, &submitInfo, _inFlightFences[_currentFrame]) != VK_SUCCESS) {
+		LOG_ERROR("Renderer, failed to submit draw command buffer !");
 		throw std::runtime_error("Error : failed to submit draw command buffer!");
 	}
 
@@ -125,6 +128,7 @@ void Renderer::endFrame()
 		_framebuffer.recreate(_context, _swapchain, _renderPass);
 	}
 	else if (result != VK_SUCCESS) {
+		LOG_ERROR("Renderer, failed to present swap chain image !");
 		throw std::runtime_error("failed to present swap chain image!");
 	}
 
@@ -186,6 +190,7 @@ void Renderer::createRenderPass()
 	renderPassInfo.pDependencies = &dependency;
 
 	if (vkCreateRenderPass(_context->getDevice().getDevice(), &renderPassInfo, nullptr, &_renderPass) != VK_SUCCESS) {
+		LOG_ERROR("Renderer, failed to create render pass !");
 		throw std::runtime_error("Error : failed to create render pass!");
 	}
 }
@@ -201,6 +206,7 @@ void Renderer::createCommandBuffers()
 	allocInfo.commandBufferCount = (uint32_t)_commandBuffers.size();
 
 	if (vkAllocateCommandBuffers(_context->getDevice().getDevice(), &allocInfo, _commandBuffers.data()) != VK_SUCCESS) {
+		LOG_ERROR("Renderer, failed to allocate command buffers !");
 		throw std::runtime_error("Error : failed to allocate command buffers!");
 	}
 }
@@ -210,7 +216,6 @@ void Renderer::createSyncObjects()
 	_imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 	_renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 	_inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
-
 
 	VkSemaphoreCreateInfo semaphoreInfo{};
 	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -223,6 +228,7 @@ void Renderer::createSyncObjects()
 		if (vkCreateSemaphore(_context->getDevice().getDevice(), &semaphoreInfo, nullptr, &_imageAvailableSemaphores[i]) != VK_SUCCESS ||
 			vkCreateSemaphore(_context->getDevice().getDevice(), &semaphoreInfo, nullptr, &_renderFinishedSemaphores[i]) != VK_SUCCESS ||
 			vkCreateFence(_context->getDevice().getDevice(), &fenceInfo, nullptr, &_inFlightFences[i]) != VK_SUCCESS) {
+			LOG_ERROR("Renderer, failed to create synchronization objects for a frame !");
 			throw std::runtime_error("Error : failed to create synchronization objects for a frame!");
 		}
 	}
@@ -236,6 +242,7 @@ void Renderer::startRecording(VkCommandBuffer commandBuffer, uint32_t imageIndex
 	beginInfo.pInheritanceInfo = nullptr; // Optional
 
 	if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
+		LOG_ERROR("Renderer, failed to begin recording command buffer !");
 		throw std::runtime_error("Error : failed to begin recording command buffer!");
 	}
 	VkRenderPassBeginInfo renderPassInfo{};
@@ -272,6 +279,7 @@ void Renderer::endRecording(VkCommandBuffer commandBuffer)
 {
 	vkCmdEndRenderPass(commandBuffer);
 	if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
+		LOG_ERROR("Renderer, failed to record command buffer !");
 		throw std::runtime_error("Error : failed to record command buffer!");
 	}
 }

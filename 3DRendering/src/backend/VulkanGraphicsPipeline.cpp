@@ -116,6 +116,7 @@ void GraphicsPipeline::create(std::shared_ptr<Context> context, uint32_t width, 
 	pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
 
 	if (vkCreatePipelineLayout(context->getDevice().getDevice(), &pipelineLayoutInfo, nullptr, &_pipelineLayout) != VK_SUCCESS) {
+		LOG_ERROR("VulkanGraphicsPipeline, failed to create pipeline layout !");
 		throw std::runtime_error("Error : failed to create pipeline layout!");
 	}
 
@@ -150,6 +151,7 @@ void GraphicsPipeline::create(std::shared_ptr<Context> context, uint32_t width, 
 	pipelineInfo.basePipelineIndex = -1; // Optional
 
 	if (vkCreateGraphicsPipelines(context->getDevice().getDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_graphicsPipeline) != VK_SUCCESS) {
+		LOG_ERROR("VulkanGraphicsPipeline, failed to create graphics pipeline !");
 		throw std::runtime_error("Error : failed to create graphics pipeline!");
 	}
 
@@ -176,6 +178,7 @@ VkShaderModule GraphicsPipeline::createShaderModule(std::shared_ptr<Context> con
 
 	VkShaderModule shaderModule;
 	if (vkCreateShaderModule(context->getDevice().getDevice(), &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
+		LOG_ERROR("VulkanGraphicsPipeline, failed to create shader module !");
 		throw std::runtime_error("failed to create shader module!");
 	}
 	return shaderModule;

@@ -10,6 +10,7 @@ void Buffer::create(std::shared_ptr<Context> context, VkDeviceSize size, VkBuffe
 	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
 	if (vkCreateBuffer(context->getDevice().getDevice(), &bufferInfo, nullptr, &_buffer) != VK_SUCCESS) {
+		LOG_ERROR("VulkanBuffer, failed to create buffer !");
 		throw std::runtime_error("Error : failed to create buffer!");
 	}
 
@@ -22,6 +23,7 @@ void Buffer::create(std::shared_ptr<Context> context, VkDeviceSize size, VkBuffe
 	allocInfo.memoryTypeIndex = context->findMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
 	if (vkAllocateMemory(context->getDevice().getDevice(), &allocInfo, nullptr, &_bufferMemory) != VK_SUCCESS) {
+		LOG_ERROR("VulkanBuffer, failed to allocate buffer memory !");
 		throw std::runtime_error("Error : failed to allocate buffer memory!");
 	}
 

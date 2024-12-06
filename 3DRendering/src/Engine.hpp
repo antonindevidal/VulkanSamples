@@ -53,7 +53,7 @@ public:
 
 	void run();
 
-	inline static std::shared_ptr<Engine> get() { return s_Instance; }
+	inline static Engine* get() { return s_Instance; }
 
 	inline std::shared_ptr<Window> getWindow() { return _window; }
 	inline std::shared_ptr<Renderer> getRenderer() { return _renderer; }
@@ -65,5 +65,5 @@ private:
 
 
 private:
-	static std::shared_ptr<Engine> s_Instance;
+	static Engine* s_Instance;
 };

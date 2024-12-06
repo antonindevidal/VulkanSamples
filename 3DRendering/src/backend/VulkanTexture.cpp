@@ -58,6 +58,7 @@ void Texture::createImage(std::shared_ptr<Context> context, uint32_t width, uint
 	imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
 	if (vkCreateImage(context->getDevice().getDevice(), &imageInfo, nullptr, &_image) != VK_SUCCESS) {
+		LOG_ERROR("VulkanTexture, failed to create image !");
 		throw std::runtime_error("Error : failed to create image!");
 	}
 
@@ -70,6 +71,7 @@ void Texture::createImage(std::shared_ptr<Context> context, uint32_t width, uint
 	allocInfo.memoryTypeIndex = context->findMemoryType(memRequirements.memoryTypeBits, properties);
 
 	if (vkAllocateMemory(context->getDevice().getDevice(), &allocInfo, nullptr, &_imageMemory) != VK_SUCCESS) {
+		LOG_ERROR("VulkanTexture, failed to allocate image memory !");
 		throw std::runtime_error("Error : failed to allocate image memory!");
 	}
 
@@ -91,6 +93,7 @@ void Texture::createImageView(std::shared_ptr<Context> context, VkFormat format,
 	viewInfo.subresourceRange.aspectMask = aspectFlags;
 
 	if (vkCreateImageView(context->getDevice().getDevice(), &viewInfo, nullptr, &_imageView) != VK_SUCCESS) {
+		LOG_ERROR("VulkanTexture, failed to create texture image view !");
 		throw std::runtime_error("Error : failed to create texture image view!");
 	}
 }
@@ -119,6 +122,7 @@ void Texture::createTextureSampler(std::shared_ptr<Context> context)
 	samplerInfo.maxLod = 0.0f;
 
 	if (vkCreateSampler(context->getDevice().getDevice(), &samplerInfo, nullptr, &_sampler) != VK_SUCCESS) {
+		LOG_ERROR("VulkanTexture, failed to create texture sampler !");
 		throw std::runtime_error("Error : failed to create texture sampler!");
 	}
 }
@@ -177,6 +181,7 @@ void Texture::transitionImageLayout(std::shared_ptr<Context> context, VkFormat f
 		destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 	}
 	else {
+		LOG_ERROR("VulkanTexture, unsupported layout transition !");
 		throw std::invalid_argument("Error : unsupported layout transition!");
 	}
 
