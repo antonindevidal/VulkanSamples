@@ -1,13 +1,15 @@
-#include "Instance.hpp"
+#include "VulkanInstance.hpp"
 
 void Instance::createInstance(std::shared_ptr<Window> window)
 {
 	if (window == nullptr)
 	{
+		LOG_ERROR("VulkanInstance, can't create VkInstance, Window is null !");
 		throw std::runtime_error("Error: Can't create VkInstance, Window is null!");
 	}
 	if (enableValidationLayers && !checkValidationLayerSupport())
 	{
+		LOG_ERROR("VulkanInstance, Validation layers requested, but not available !");
 		throw std::runtime_error("Error: Validation layers requested, but not available!");
 	}
 
@@ -43,6 +45,7 @@ void Instance::createInstance(std::shared_ptr<Window> window)
 	}
 
 	if (vkCreateInstance(&createInfo, nullptr, &_instance) != VK_SUCCESS) {
+		LOG_ERROR("VulkanInstance, failed to create VkInstance !");
 		throw std::runtime_error("Error: Failed to create VkInstance!");
 	}
 	setupDebugMessenger();
@@ -114,6 +117,7 @@ bool Instance::checkValidationLayerSupport()
 void Instance::createSurface(std::shared_ptr<Window> window)
 {
 	if (window->createSurface(_instance, &_surface) != VK_SUCCESS) {
+		LOG_ERROR("VulkanInstance, failed to create window surface !");
 		throw std::runtime_error("Error: failed to create window surface!");
 	}
 }
@@ -126,6 +130,7 @@ void Instance::setupDebugMessenger()
 	populateDebugMessengerCreateInfo(createInfo);
 
 	if (createDebugUtilsMessengerEXT(_instance, &createInfo, nullptr, &_debugMessenger) != VK_SUCCESS) {
+		LOG_ERROR("VulkanInstance, failed to set up debug messenger !");
 		throw std::runtime_error("failed to set up debug messenger!");
 	}
 }
@@ -161,8 +166,13 @@ VKAPI_ATTR VkBool32 VKAPI_CALL Instance::debugCallback(
 	const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 	void* pUserData) {
 
-	if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
-		std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+	if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
+	{
+		LOG_ERROR(pCallbackData->pMessage);
+	}
+	else if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
+	{
+		LOG_WARNING(pCallbackData->pMessage);
 	}
 	return VK_FALSE;
 }

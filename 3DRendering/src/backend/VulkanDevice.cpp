@@ -1,4 +1,4 @@
-#include "Device.hpp"
+#include "VulkanDevice.hpp"
 
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -37,6 +37,11 @@ VkDevice Device::getDevice()
 VkPhysicalDevice Device::getPhysicalDevice()
 {
 	return _physicalDevice;
+}
+
+Device::QueueFamilyIndices Device::getQueueFamilyIndices()
+{
+	return _queueFamilyIndices;
 }
 
 bool Device::checkDeviceExtensionSupport(VkPhysicalDevice device)
@@ -79,6 +84,7 @@ void Device::pickPhysicalDevice(VkInstance instance, VkSurfaceKHR surface)
 	vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
 	if (deviceCount == 0) {
+		LOG_ERROR("VulkanDevice, failed to find GPUs with Vulkan support !");
 		throw std::runtime_error("Error: Failed to find GPUs with Vulkan support!");
 	}
 
@@ -93,17 +99,18 @@ void Device::pickPhysicalDevice(VkInstance instance, VkSurfaceKHR surface)
 	}
 
 	if (_physicalDevice == VK_NULL_HANDLE) {
+		LOG_ERROR("VulkanDevice, failed to find a suitable GPU !");
 		throw std::runtime_error("failed to find a suitable GPU!");
 	}
 }
 
 void Device::createLogicalDevice(VkSurfaceKHR surface)
 {
-	QueueFamilyIndices indices = findQueueFamilies(_physicalDevice, surface);
+	_queueFamilyIndices = findQueueFamilies(_physicalDevice, surface);
 	float queuePriority = 1.0f;
 
 	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-	std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
+	std::set<uint32_t> uniqueQueueFamilies = { _queueFamilyIndices.graphicsFamily.value(), _queueFamilyIndices.presentFamily.value() };
 
 	for (uint32_t queueFamily : uniqueQueueFamilies) {
 		VkDeviceQueueCreateInfo queueCreateInfo{};
@@ -134,10 +141,61 @@ void Device::createLogicalDevice(VkSurfaceKHR surface)
 	}
 
 	if (vkCreateDevice(_physicalDevice, &createInfo, nullptr, &_device) != VK_SUCCESS) {
+		LOG_ERROR("VulkanDevice, failed to create logical device !");
 		throw std::runtime_error("Error: Failed to create logical device!");
 	}
 }
 
+Device::QueueFamilyIndices Device::findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface)
+{
+	QueueFamilyIndices indices{};
+	uint32_t queueFamilyCount = 0;
+	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
 
+	std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
+	int i = 0;
+	for (const auto& queueFamily : queueFamilies) {
+		if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+			indices.graphicsFamily = i;
+		}
 
+		VkBool32 presentSupport = false;
+		vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
+
+		if (presentSupport) {
+			indices.presentFamily = i;
+		}
+
+		if (indices.isComplete()) {
+			break;
+		}
+		i++;
+	}
+	return indices;
+}
+
+Device::SwapChainSupportDetails Device::querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface) {
+	Device::SwapChainSupportDetails details;
+	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
+
+	// Check Format Mode
+	uint32_t formatCount;
+	vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
+
+	if (formatCount != 0) {
+		details.formats.resize(formatCount);
+		vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, details.formats.data());
+	}
+
+	// Check Present Mode
+	uint32_t presentModeCount;
+	vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
+
+	if (presentModeCount != 0) {
+		details.presentModes.resize(presentModeCount);
+		vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, details.presentModes.data());
+	}
+	return details;
+}

@@ -1,5 +1,5 @@
-set sourceDir=%1\3DRendering\Shaders
-set outputDir=%2\3DRendering\Shaders
+set sourceDir=%1\src\shaders
+set outputDir=%2\src\shaders
 
 
 if not exist "%outputDir%" mkdir "%outputDir%"

@@ -27,11 +27,11 @@
 
 #include "vulkan/vulkan.h"
 
+#include "Logger.hpp"
+
 // CONFIG
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
-
-
 
 #ifdef NDEBUG
 const bool enableValidationLayers = false;

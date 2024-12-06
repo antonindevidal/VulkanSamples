@@ -1,11 +1,11 @@
 #pragma once
-
 #include "pch.h"
-#include "VkStructs.hpp"
+#include "Window.hpp"
+#include "Renderer.hpp"
+#include "Logger.hpp"
+#include "backend/VulkanBackend.hpp"
 
-std::string windowName = "Vulkan triangle";
-
-
+// To remove
 const std::vector<Vertex> vertices = {
 	{{ -0.5f, -0.5f, 0.0f},	{1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
 	{{0.5f, -0.5f, 0.0f},	{0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
@@ -41,4 +41,29 @@ struct UniformBufferObject {
 	alignas(16) glm::mat4 model;
 	alignas(16) glm::mat4 view;
 	alignas(16) glm::mat4 proj;
+};
+
+
+
+class Engine
+{
+public:
+	Engine();
+	~Engine();
+
+	void run();
+
+	inline static Engine* get() { return s_Instance; }
+
+	inline std::shared_ptr<Window> getWindow() { return _window; }
+	inline std::shared_ptr<Renderer> getRenderer() { return _renderer; }
+
+private:
+	std::shared_ptr<Window> _window;
+	std::shared_ptr<Context> _context;
+	std::shared_ptr<Renderer> _renderer;
+
+
+private:
+	static Engine* s_Instance;
 };
