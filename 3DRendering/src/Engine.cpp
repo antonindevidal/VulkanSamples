@@ -56,9 +56,9 @@ void Engine::run()
     DescriptorSet descriptorSetUb;
     descriptorSetUb.createDescriptorSetUniformBuffer(_context, layoutUb, pool, uniforms);
 
-    Material material = _renderer->createMaterial("Shaders/vert.spv", "Shaders/frag.spv", "Textures/cat.jpg");
-    Material material2 = _renderer->createMaterial("Shaders/vert.spv", "Shaders/frag.spv", "Textures/cat2.jpg");
-    Material material3 = _renderer->createMaterial("Shaders/vert.spv", "Shaders/colorfrag.spv");
+    Material material = _renderer->createMaterial("src/Shaders/vert.spv", "src/Shaders/frag.spv", "resources/Textures/cat.jpg");
+    Material material2 = _renderer->createMaterial("src/Shaders/vert.spv", "src/Shaders/frag.spv", "resources/Textures/cat2.jpg");
+    Material material3 = _renderer->createMaterial("src/Shaders/vert.spv", "src/Shaders/colorfrag.spv");
 
     while (!_window->ShouldClose()) {
         _window->PollEvents();
