@@ -56,6 +56,8 @@ This project shows a simple 3D scene in Vulkan. It implements a basic rendering 
 ### Features :
 - Abstraction level for the Vulkan API
 - Supports multiple graphics pipelines
-- Supports multiple meshes and associated descriptor sets
+- Supports multiple meshes and associated descriptor sets*
+
+A disadvantage of this backend is that descriptor sets contain only one descriptor (sampler or ubo). Each material has its own graphics pipeline which is convenient but not optimal for performances.
  
 ![3D rendering](/Documentation/3DRenderingProject.png)
