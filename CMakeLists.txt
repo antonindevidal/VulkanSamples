@@ -10,5 +10,6 @@ project ("VulkanSamples")
 # Include subprojects
 add_subdirectory ("3DRendering")
 add_subdirectory ("GrassGeneration")
+add_subdirectory ("CloudGeneration")
 add_subdirectory ("RayMarching")
 add_subdirectory("Dependencies")

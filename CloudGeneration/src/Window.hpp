@@ -16,13 +16,20 @@ public:
 	Window();
 	Window(Window& w) = delete;
 	Window& operator=(const Window&) = delete;
-	
+
 	void Create(std::string& name);
 	bool ShouldClose();
 	void PollEvents();
 	void waitEvents();
 	void Destroy();
 	glm::uvec2 GetSize();
+
+	bool isKeyPressed(const unsigned int& keycode);
+	bool isMouseButtonPressed(const unsigned int& keycode);
+
+	void setCursorPosition(uint32_t x, uint32_t y);
+	glm::vec2 getMousePosition();
+	void setCursorVisible(bool visibility);
 
 	const char** getRequiredExtensions(uint32_t& extensionCount);
 	HWND getWin32Window();
@@ -34,8 +41,10 @@ public:
 private:
 	glm::uvec2 _size;
 	GLFWwindow* _window;
-	
+
+	glm::uvec2 _mousePosition;
 
 	static std::vector<FrameBufferResizeCallback> _frameBufferResizeCallbacks;
+	void mouseCallback(GLFWwindow* window, double xpos, double ypos);
 };
 

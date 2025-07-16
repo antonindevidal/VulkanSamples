@@ -1,5 +1,5 @@
 #include "Renderer.hpp"
-
+#include "Logger.hpp"
 Renderer::Renderer()
 {
 }
@@ -49,6 +49,15 @@ VkCommandBuffer Renderer::getCommandBuffer()
 uint32_t Renderer::getCurrentFrame()
 {
 	return _currentFrame;
+}
+uint32_t Renderer::getSwapchainWidth()
+{
+	return _swapchain.getExtent().width;
+}
+
+uint32_t Renderer::getSwapchainHeight()
+{
+	return _swapchain.getExtent().height;
 }
 
 void Renderer::startFrame()
@@ -305,7 +314,7 @@ void Renderer::destroyMesh(Mesh& mesh)
 void Renderer::drawMesh(Mesh& mesh, Material& material, const std::vector<DescriptorSet>& descriptors)
 {
 	material._graphicsPipeline.bind(_context, getCommandBuffer());
-	if(material._hasTexture)
+	if (material._hasTexture)
 		material._textureDescriptor.bind(_context, material._graphicsPipeline, getCommandBuffer(), _currentFrame, 1);
 
 	for (auto& ds : descriptors)
@@ -347,6 +356,17 @@ Material Renderer::createMaterial(const std::string& vertexShaderPath, const std
 	return m;
 }
 
+Material Renderer::createMaterialRayMarching(const std::string& vertexShaderPath, const std::string& fragmentShaderPath)
+{
+	Material m;
+	m._hasTexture = false;
+	DescriptorSetLayout layoutUB;
+	layoutUB.createUniformBufferLayout(_context, 0);
+	m._graphicsPipeline.createRaymarchingGraphicsPipeline(_context, _swapchain.getWidth(), _swapchain.getHeight(), _swapchain.getExtent(), _renderPass, vertexShaderPath, fragmentShaderPath, { layoutUB._layout });
+	layoutUB.destroy(_context);
+	return m;
+}
+
 void Renderer::destroyMaterial(Material& material)
 {
 	material._graphicsPipeline.destroy(_context);
@@ -356,3 +376,4 @@ void Renderer::destroyMaterial(Material& material)
 		material._textureDescriptorLayout.destroy(_context);
 	}
 }
+

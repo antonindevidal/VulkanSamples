@@ -1,39 +1,38 @@
 #include "Window.hpp"
 
+#include <stdexcept>
+
 std::vector<Window::FrameBufferResizeCallback> Window::_frameBufferResizeCallbacks = {};
 
 Window::Window() :
 	_size(800, 600),
-	_window(nullptr)
+	_window(nullptr),
+	_mousePosition()
 {
 }
 
 void Window::Create(std::string& name)
 {
 	if (!glfwInit())
-	{
-		LOG_ERROR("Error initializing GLFW !");
-		throw std::runtime_error("Error initializing GLFW !");
-	}
+		throw std::runtime_error("Error initializing GLFW");
 
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	_window = glfwCreateWindow(_size.x, _size.y, name.c_str(), nullptr, nullptr);
 
 	if (!_window)
-	{
-		LOG_ERROR("Error Creating Window !");
-		throw std::runtime_error("Error Creating Window !");
-	}
+		throw std::runtime_error("Error Creating Window");
 
 	glfwMakeContextCurrent(_window);
-	glfwSetFramebufferSizeCallback(_window, [](GLFWwindow* window, int width, int height){ 
+	glfwSetFramebufferSizeCallback(_window, [](GLFWwindow* window, int width, int height) {
 		for (auto& callback : _frameBufferResizeCallbacks)
 		{
 			callback(width, height);
 		}
-	});
+		});
 	glfwSwapInterval(1);
-	LOG_INFO("Window created successfully !");
+
+	glfwSetCursorPos(_window, _size.x / 2, _size.y / 2);
+	//glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 }
 
 bool Window::ShouldClose()
@@ -64,6 +63,35 @@ glm::uvec2 Window::GetSize()
 	return { x,y };
 }
 
+bool Window::isKeyPressed(const unsigned int& keycode)
+{
+	auto state = glfwGetKey(_window, keycode);
+	return state == GLFW_REPEAT || state == GLFW_PRESS;
+}
+
+bool Window::isMouseButtonPressed(const unsigned int& keycode)
+{
+	auto state = glfwGetMouseButton(_window, keycode);
+	return state == GLFW_REPEAT || state == GLFW_PRESS;
+}
+
+void Window::setCursorPosition(uint32_t x, uint32_t y)
+{
+	glfwSetCursorPos(_window, x, y);
+}
+
+glm::vec2 Window::getMousePosition()
+{
+	double x, y;
+	glfwGetCursorPos(_window, &x, &y);
+	return { x,y };
+}
+
+void Window::setCursorVisible(bool visibility)
+{
+	glfwSetInputMode(_window, GLFW_CURSOR, visibility ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
+}
+
 const char** Window::getRequiredExtensions(uint32_t& extensionCount)
 {
 	return glfwGetRequiredInstanceExtensions(&extensionCount);
@@ -85,3 +113,4 @@ void Window::addFrameBufferResizeCallback(FrameBufferResizeCallback callback)
 {
 	_frameBufferResizeCallbacks.push_back(callback);
 }
+

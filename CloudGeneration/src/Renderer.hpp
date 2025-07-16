@@ -17,7 +17,8 @@ public:
 
 	VkCommandBuffer getCommandBuffer();
 	uint32_t getCurrentFrame();
-
+	uint32_t getSwapchainWidth();
+	uint32_t getSwapchainHeight();
 	Device& getDevice();
 	void waitDeviceIdle();
 
@@ -31,6 +32,7 @@ public:
 	// Material
 	Material createMaterial(const std::string& vertexShaderPath, const std::string& fragmentShaderPath, const std::string& texturePath);
 	Material createMaterial(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
+	Material createMaterialRayMarching(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
 	void destroyMaterial(Material& material);
 
 private:
